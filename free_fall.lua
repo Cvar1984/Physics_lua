@@ -6,7 +6,7 @@ local gravity_tables = {
     ["betelgeus"] = 0.003162,
 }
 
-io.write("Select space object[earth,moon,mars,sun,betelgeus]: ")
+io.write("Select gravity sources [earth,moon,mars,sun,betelgeus]: ")
 local choice = io.read("*l")
 choice = string.lower(choice)
 local gravity = gravity_tables[choice]

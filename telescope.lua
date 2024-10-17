@@ -23,12 +23,16 @@ end
 function Telescope:calculateAperture(focalRatio)
     return self.focalLength / focalRatio
 end
-
+-- LGP = π * (Aperture in meter/2)^2 * Luminance Sensitivity of the Human Eye in cd/m^2
 function Telescope:calculateLightGatheringPower()
-    local area = math.pi * (self.aperture^2) / 4
-    local areaOfHumanPupil = 7 * 7 * math.pi / 4
-    local ratio = area / areaOfHumanPupil
-    return ratio
+    -- Luminance sensitivity of the human eye in candela per square meter approximately 3.18309 * 10^-6 cd/m^2 according to Lamma-3 AI
+    -- and approximately peak at 5.5 x 10^-10 cd/m^2 according to Gemini AI
+    local luminanceSensitivity = 3.18309 * 1e-6
+    local apertureInMeters = self.aperture / 1000 -- Convert mm to meters
+
+    local lightGatheringPower = math.pi * (apertureInMeters / 2)^2 * luminanceSensitivity
+
+    return lightGatheringPower
 end
 
 -- Get user input

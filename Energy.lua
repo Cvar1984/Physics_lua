@@ -1,20 +1,20 @@
 -- TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
 local Energy = { -- energy constant
-    SPEED_OF_LIGHT = 299792458, -- m/s^2
-    GRAVITY = 9.80665 -- m/s^2
+    SPEED_OF_LIGHT = 299792458, -- meter/seconds
+    GRAVITY = 9.80665 -- meter/seconds
 }
 
 -- E = mc^2
 -- mass in kilograms
 function Energy:calculateEnergy(mass)
-    local energy = mass * self.SPEED_OF_LIGHT ^ 2
+    local energy = mass * (self.SPEED_OF_LIGHT  ^ 2)
     return energy
 end
 
 -- KE = 1/2mv^2
 -- mas in kilograms, velocity in meter/second
 function Energy:calculateKineticEnergy(mass, velocity)
-    local kineticEnergy = 1/2 * mass * velocity ^ 2
+    local kineticEnergy = 1/2 * mass * (velocity ^ 2)
     return kineticEnergy
 end
 

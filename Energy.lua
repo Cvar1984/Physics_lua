@@ -4,6 +4,12 @@ local Energy = { -- energy constant
     GRAVITY = 9.80665 -- meter/seconds
 }
 
+function Energy:new(o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 -- E = mc^2
 -- mass in kilograms
 function Energy:calculateEnergy(mass)

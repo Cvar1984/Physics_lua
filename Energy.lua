@@ -38,9 +38,16 @@ function Energy:calculateHeatCapacity(heatEnergy, mass, tempChanges)
     local heatCapacity = heatEnergy / (mass * tempChanges)
     return heatCapacity
 end
+-- f = ma
+-- mass in kilograms, acceleration in meter/second^2
+function Energy:calculateForce(mass, acceleration)
+    local force = mass * acceleration
+    return force
+end
 
 -- annihilation of 1 gram of matter and 1 gram of antimatter is aproximately 21.5 kilotons of TNT explosive about the same as the fat man
 print("E = " .. Energy:calculateEnergy(1/1000) .. " J")
+print("F = " .. Energy:calculateForce(1/1000, Energy.SPEED_OF_LIGHT) .. " N")
 print("KE = " .. Energy:calculateKineticEnergy(3, 100 * 3.6) .. " J") -- ms to kmh
 print("PE = " .. Energy:calculatePotentialEnergy(3, 10) .. " J")
 print("q = " .. Energy:calculateHeatEnergy(3, 4.2, 10) .. " J")

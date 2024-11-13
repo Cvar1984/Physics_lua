@@ -10,49 +10,86 @@ function Energy:new(o)
     self.__index = self
     return o
 end
+--[[ SI unit
+energy = joules
+mass = kg
+acceleration = meter/second^2
+force = newton
+]]--
 -- E = mc^2
--- mass in kilograms
-function Energy:calculateEnergy(mass)
+function Energy:calculateRelativeEnergy(mass)
     local energy = mass * (self.SPEED_OF_LIGHT  ^ 2)
     return energy
 end
-
+-- m = e/c^2
+function Energy:calculateRelativeMass(energy)
+    local mass = energy / (self.SPEED_OF_LIGHT  ^ 2)
+    return mass
+end
+-- c^2 = e/m
+function Energy:calculateRelativeSpeed(energy, mass)
+    local c2 = energy / mass
+    local c = math.sqrt(c2)
+    return c
+end
 -- KE = 1/2mv^2
--- mas in kilograms, velocity in meter/second
 function Energy:calculateKineticEnergy(mass, velocity)
     local kineticEnergy = 1/2 * mass * (velocity ^ 2)
     return kineticEnergy
 end
-
 -- PE = mgh
--- mas in kilograms, height in meter
 function Energy:calculatePotentialEnergy(mass, height)
     local potentialEnergy = mass * self.GRAVITY * height
     return potentialEnergy
 end
-
+-- m = j/(gh)
+function Energy:calculatePotentialMass(potentialEnergy, height)
+    local potentialMass = potentialEnergy / (self.GRAVITY * height)
+    return potentialMass
+end
+-- h = j / (mg)
+function Energy:calculatePotentialHeight(potentialEnergy, potentialMass)
+    local potentialHeight = potentialEnergy / (potentialMass * self.GRAVITY)
+    return potentialHeight
+end
 -- q = mCΔT
--- mass in kilograms, heatcap j/kg celcius, tempchange in celcius
 function Energy:calculateHeatEnergy(mass, heatCapacity, tempChanges)
     local heatEnergy = mass * heatCapacity * tempChanges
     return heatEnergy
 end
-
 -- C = q/(mΔT)
--- heat energy in joules, mass in kg, tempchange in celcius
 function Energy:calculateHeatCapacity(heatEnergy, mass, tempChanges)
     local heatCapacity = heatEnergy / (mass * tempChanges)
     return heatCapacity
 end
+-- ΔT = q/(mC)
+function Energy:calculateTempChanges(heatEnergy, mass, heatCapacity)
+    local tempChanges = heatEnergy / (mass * heatCapacity)
+    return tempChanges
+end
+-- m = q / (cΔT)
+function Energy:calculateHeatMass(heatEnergy, heatCapacity, tempChanges)
+    local heatMass = heatEnergy / (heatCapacity * tempChanges)
+    return heatMass
+end
 -- f = ma
--- mass in kilograms, acceleration in meter/second^2
 function Energy:calculateForce(mass, acceleration)
     local force = mass * acceleration
     return force
 end
+-- m = f/a
+function Energy:calculateMass(force, acceleration)
+    local mass = force / acceleration
+    return mass
+end
+-- a = f/m
+function Energy:calculateAcceleration(force, mass)
+    local acceleration = force / mass
+    return acceleration
+end
 
 -- annihilation of 1 gram of matter and 1 gram of antimatter is aproximately 21.5 kilotons of TNT explosive about the same as the fat man
-print("E = " .. Energy:calculateEnergy(1/1000) .. " J")
+print("E = " .. Energy:calculateRelativeEnergy(1/1000) .. " J")
 print("F = " .. Energy:calculateForce(1/1000, Energy.SPEED_OF_LIGHT) .. " N")
 print("KE = " .. Energy:calculateKineticEnergy(3, 100 * 3.6) .. " J") -- ms to kmh
 print("PE = " .. Energy:calculatePotentialEnergy(3, 10) .. " J")

@@ -87,20 +87,25 @@ function Energy:calculateAcceleration(force, mass)
     local acceleration = force / mass
     return acceleration
 end
--- V = IR
+-- v = ir
 function Energy:calculateVoltage(current, resitance)
     local voltage = current * resitance
     return voltage
 end
--- I = V/R
+-- i = v/r
 function Energy:calculateCurrent(voltage, resistance)
     local current = voltage / resistance
     return current
 end
--- R = V/I
+-- r = v/i
 function Energy:calculateResistance(voltage, current)
     local resistance = voltage / current
     return resistance
+end
+-- p = vi
+function Energy:calculatePower(voltage, current)
+    local wattage = voltage * current
+    return wattage
 end
 
 -- annihilation of 1 gram of matter and 1 gram of antimatter is aproximately 21.5 kilotons of TNT explosive about the same as the fat man
@@ -110,5 +115,7 @@ print("KE = " .. Energy:calculateKineticEnergy(3, 100 * 3.6) .. " J") -- ms to k
 print("PE = " .. Energy:calculatePotentialEnergy(3, 10) .. " J")
 print("q = " .. Energy:calculateHeatEnergy(3, 4.2, 10) .. " J")
 print("C = " .. Energy:calculateHeatCapacity(126, 3, 10) .. " J/(kg°C)")
-print("I = " .. Energy:calculateCurrent(5, 0.1) .. " Watt")
+print("I = " .. Energy:calculateCurrent(5, 0.1) .. " A")
 print("R = " .. Energy:calculateResistance(5, 50) .. " Ohm")
+print("P = " .. Energy:calculatePower(5,50) .. " W")
+print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")

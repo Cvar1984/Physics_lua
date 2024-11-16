@@ -5,8 +5,11 @@ function Shape:new(o)
     self.__index = self
     return o
 end
-
---
+--[[
+pi = c/d
+c = pi*d
+d = c/pi
+]]--
 function Shape:squareToCircle(squareArea) -- eg: 28m^2
     local circleRadius = math.sqrt(squareArea / math.pi) -- r= √(a^2 / π)
     --local circleDiameter = 2 * circleRadius -- d = 2r

@@ -1,3 +1,6 @@
+--[[
+h = 1/2 gt^2
+]]--
 local gravity_tables = {
     ["moon"] = 1.625,
     ["earth"] = 9.80665,
@@ -11,12 +14,13 @@ local choice = io.read("*l")
 choice = string.lower(choice)
 local gravity = gravity_tables[choice]
 
-io.write("Initial acceleration of the object in m/s: ")
-local initial_velocity = io.read("*n")
-
 io.write("Times the object is dropped from a height in sec: ")
 local time = io.read("*n");
 
-local height = initial_velocity * time + 0.5 * gravity * time ^ 2
+local height = 1/2 * gravity * (time ^ 2)
+--local t = math.sqrt(height / (1/2 * gravity))
+--local g = height/(1/2 * (time ^ 2))
 
-print(string.format("Your height: %s Meter", height))
+print(string.format("Your height: %s m", height))
+print(string.format("Your gravity: %s m/s^2", gravity))
+print(string.format("Your time: %s S", time))

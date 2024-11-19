@@ -1,4 +1,3 @@
-local math = require "math"
 local Math = require "Math"
 
 local ShapeConversion =  {}
@@ -14,7 +13,7 @@ c = pi*d
 d = c/pi
 ]]--
 function ShapeConversion:squareToCircle(squareArea) -- eg: 28m^2
-    local circleRadius = Math:sqrt(squareArea ^ 2 / math.pi) -- r= √(a^2 / π)
+    local circleRadius = Math:sqrt(squareArea ^ 2 / Math.PI) -- r= √(a^2 / π)
     --local circleDiameter = 2 * circleRadius -- d = 2r
     --local circleCircumference = 2 * math.pi * circleRadius-- c = 2πR
     --local circlePI = circleCircumference / circleDiameter -- π = circumference / diameter

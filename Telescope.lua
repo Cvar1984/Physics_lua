@@ -1,4 +1,4 @@
--- Telescope class definition
+local Math = require "Math"
 local Telescope = {}
 
 function Telescope:new(o)
@@ -30,11 +30,11 @@ function Telescope:calculateLightGatheringPower(aperture) -- according to llama-
     local luminanceSensitivity = 3.18309 * 1e-6
     local apertureInMeters = aperture / 1000 -- Convert mm to meters
 
-    local lightGatheringPower = math.pi * (apertureInMeters / 2)^2 * luminanceSensitivity
+    local lightGatheringPower = Math.PI * (apertureInMeters / 2)^2 * luminanceSensitivity
 
     return lightGatheringPower
 end
-
+--return Telescope
 --local telescope = Telescope:new{}
 print("Main mirror diameter in mm: ")
 local mainMirrorDiameter = tonumber(io.read())

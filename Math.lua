@@ -1,4 +1,7 @@
-local Math = {}
+local Math = {
+    SPEED_OF_LIGHT = 299792458, -- meter/seconds
+    GRAVITY = 9.80665 -- meter/seconds
+}
 function Math:new(o)
     o = o or {}
     setmetatable(o, self)

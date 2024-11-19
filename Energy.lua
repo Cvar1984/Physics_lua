@@ -1,11 +1,9 @@
 local Math = require "Math"
-math = Math:new()
 
--- TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
-local Energy = { -- energy constant
-    SPEED_OF_LIGHT = 299792458, -- meter/seconds
-    GRAVITY = 9.80665 -- meter/seconds
-}
+--[[
+TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
+]]--
+local Energy = {}
 
 function Energy:new(o)
     o = o or {}
@@ -21,12 +19,12 @@ force = newton
 ]]--
 -- E = mc^2
 function Energy:calculateRelativeEnergy(mass)
-    local energy = mass * (self.SPEED_OF_LIGHT  ^ 2)
+    local energy = mass * (Math.SPEED_OF_LIGHT  ^ 2)
     return energy
 end
 -- m = e/c^2
 function Energy:calculateRelativeMass(energy)
-    local mass = energy / (self.SPEED_OF_LIGHT  ^ 2)
+    local mass = energy / (Math.SPEED_OF_LIGHT  ^ 2)
     return mass
 end
 -- c^2 = e/m
@@ -42,17 +40,17 @@ function Energy:calculateKineticEnergy(mass, velocity)
 end
 -- PE = mgh
 function Energy:calculatePotentialEnergy(mass, height)
-    local potentialEnergy = mass * self.GRAVITY * height
+    local potentialEnergy = mass * Math.GRAVITY * height
     return potentialEnergy
 end
 -- m = j/(gh)
 function Energy:calculatePotentialMass(potentialEnergy, height)
-    local potentialMass = potentialEnergy / (self.GRAVITY * height)
+    local potentialMass = potentialEnergy / (Math.GRAVITY * height)
     return potentialMass
 end
 -- h = j / (mg)
 function Energy:calculatePotentialHeight(potentialEnergy, potentialMass)
-    local potentialHeight = potentialEnergy / (potentialMass * self.GRAVITY)
+    local potentialHeight = potentialEnergy / (potentialMass * Math.GRAVITY)
     return potentialHeight
 end
 -- q = mCΔT
@@ -110,15 +108,4 @@ function Energy:calculatePower(voltage, current)
     local wattage = voltage * current
     return wattage
 end
-
--- annihilation of 1 gram of matter and 1 gram of antimatter is aproximately 21.5 kilotons of TNT explosive about the same as the fat man
-print("E = " .. Energy:calculateRelativeEnergy(1/1000) .. " J")
-print("F = " .. Energy:calculateForce(1/1000, Energy.SPEED_OF_LIGHT) .. " N")
-print("KE = " .. Energy:calculateKineticEnergy(3, 100 * 3.6) .. " J") -- ms to kmh
-print("PE = " .. Energy:calculatePotentialEnergy(3, 10) .. " J")
-print("q = " .. Energy:calculateHeatEnergy(3, 4.2, 10) .. " J")
-print("C = " .. Energy:calculateHeatCapacity(126, 3, 10) .. " J/(kg°C)")
-print("I = " .. Energy:calculateCurrent(5, 0.1) .. " A")
-print("R = " .. Energy:calculateResistance(5, 50) .. " Ohm")
-print("P = " .. Energy:calculatePower(5,50) .. " W")
-print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")
+return Energy

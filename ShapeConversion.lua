@@ -1,3 +1,6 @@
+local Math = require "Math"
+Math = Math:new()
+
 local Shape =  {}
 function Shape:new(o)
     o = o or {}
@@ -11,7 +14,7 @@ c = pi*d
 d = c/pi
 ]]--
 function Shape:squareToCircle(squareArea) -- eg: 28m^2
-    local circleRadius = math.sqrt(squareArea / math.pi) -- r= √(a^2 / π)
+    local circleRadius = Math:sqrt(squareArea / math.pi) -- r= √(a^2 / π)
     --local circleDiameter = 2 * circleRadius -- d = 2r
     --local circleCircumference = 2 * math.pi * circleRadius-- c = 2πR
     --local circlePI = circleCircumference / circleDiameter -- π = circumference / diameter

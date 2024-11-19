@@ -1,3 +1,6 @@
+local Math = require "Math"
+math = Math:new()
+
 -- TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
 local Energy = { -- energy constant
     SPEED_OF_LIGHT = 299792458, -- meter/seconds
@@ -29,12 +32,12 @@ end
 -- c^2 = e/m
 function Energy:calculateRelativeSpeed(energy, mass)
     local c2 = energy / mass
-    local c = math.sqrt(c2)
+    local c = Math:sqrt(c2)
     return c
 end
 -- KE = 1/2mv^2
 function Energy:calculateKineticEnergy(mass, velocity)
-    local kineticEnergy = 1/2 * mass * (velocity ^ 2)
+    local kineticEnergy = (1/2) * mass * (velocity ^ 2)
     return kineticEnergy
 end
 -- PE = mgh

@@ -17,21 +17,27 @@ mass = kg
 acceleration = meter/second^2
 force = newton
 ]]--
--- E = mc^2
-function Energy:calculateRelativeEnergy(mass)
-    local energy = mass * (Math.SPEED_OF_LIGHT  ^ 2)
+--p = mv
+function Energy:calculateMomentum(mass, velocity)
+    local momentum = mass * velocity
+    return momentum
+end
+-- e2 = (mc^2)^2+(pc)^2
+function Energy:calculateRelativeEnergy(mass, momentum)
+    local energy = math.sqrt((mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2 + (momentum * Math.SPEED_OF_LIGHT) ^ 2)
     return energy
 end
--- m = e/c^2
-function Energy:calculateRelativeMass(energy)
-    local mass = energy / (Math.SPEED_OF_LIGHT  ^ 2)
+-- e2 - (pc)^2 = (mc^2)^2
+-- m2 = (e^2 - (pc)^2) /c^4
+function Energy:calculateRelativeMass(energy, momentum)
+    local mass = math.sqrt((energy ^ 2 - (momentum * Math.SPEED_OF_LIGHT) ^ 2) / Math.SPEED_OF_LIGHT ^ 4)
     return mass
 end
--- c^2 = e/m
-function Energy:calculateRelativeSpeed(energy, mass)
-    local c2 = energy / mass
-    local c = Math:sqrt(c2)
-    return c
+-- e2 - (mc^2)^2 = (pc)^2
+-- p2 = (e^2 - (mc^2)^2) / c^2
+function Energy:calculateRelativeMomentum(energy, mass)
+    local momentum = math.sqrt((energy ^ 2 - (mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2) / Math.SPEED_OF_LIGHT ^ 2)
+    return momentum
 end
 -- KE = 1/2mv^2
 function Energy:calculateKineticEnergy(mass, velocity)

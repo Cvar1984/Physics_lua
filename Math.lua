@@ -25,4 +25,15 @@ function Math:sqrt(x)
 
     return low
 end
+-- newton square root
+function Math:Sqrt(x)
+    local epsilon = 1e-14
+    local guess = x / 2
+
+    while math.abs(guess * guess - x) > epsilon do
+        guess = (guess + x / guess) / 2
+    end
+
+    return guess
+end
 return Math

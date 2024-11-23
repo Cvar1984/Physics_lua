@@ -16,4 +16,5 @@ print("I = " .. Energy:calculateCurrent(5, 0.1) .. " A")
 print("R = " .. Energy:calculateResistance(5, 50) .. " Ohm")
 print("P = " .. Energy:calculatePower(5,50) .. " W")
 print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")
-print(Shape:squareToCircle(28)) -- 28m^2 aprox to circle with 15.797308339337 r
+print("v = " .. Energy:calculateDopplerVelocity(434, 482) .. " m/s")
+print("z = " .. Energy:calculateDopplerShift(434, 482))

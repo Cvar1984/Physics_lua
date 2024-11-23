@@ -114,4 +114,19 @@ function Energy:calculatePower(voltage, current)
     local wattage = voltage * current
     return wattage
 end
+-- z = v/c
+-- v/c = Δλ / λ∘
+-- Δλ = λ - λ∘
+-- v = Δλ / λ∘ * c
+function Energy:calculateDopplerVelocity(referenceWavelength, observedWavelegth)
+    local deltaWavelegth = observedWavelegth - referenceWavelength
+    local velocity = Math.SPEED_OF_LIGHT * (deltaWavelegth / referenceWavelength)
+    return velocity
+end
+-- z = Δλ / λ∘
+function Energy:calculateDopplerShift(referenceWavelength, observedWavelegth)
+    local deltaWavelegth = observedWavelegth - referenceWavelength
+    local shift = deltaWavelegth / referenceWavelength
+    return shift
+end
 return Energy

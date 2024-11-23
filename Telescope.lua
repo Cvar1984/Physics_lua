@@ -35,7 +35,6 @@ function Telescope:calculateLightGatheringPower(aperture) -- according to llama-
     return lightGatheringPower
 end
 --return Telescope
---local telescope = Telescope:new{}
 print("Main mirror diameter in mm: ")
 local mainMirrorDiameter = tonumber(io.read())
 

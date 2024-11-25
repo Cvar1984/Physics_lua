@@ -1,6 +1,6 @@
 local Math = require "Math"
 local Energy = require "Energy"
-local Shape = require "ShapeConversion"
+local Astro = require "Astro"
 
 -- 1 gram of weights
 local mass = Energy:calculateMass(1/1000, Math.GRAVITY)
@@ -16,8 +16,7 @@ print("I = " .. Energy:calculateCurrent(5, 0.1) .. " A")
 print("R = " .. Energy:calculateResistance(5, 50) .. " Ohm")
 print("P = " .. Energy:calculatePower(5,50) .. " W")
 print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")
-print("v = " .. Energy:calculateDopplerVelocity(434, 482) .. " m/s")
-local shift = Energy:calculateDopplerShift(434/(1*10^9), 482/(1*10^9)) -- 1e+9 nm to m conversion
+print("v = " .. Astro:calculateDopplerRadialVelocity(434, 435) .. " m/s")
+local shift = Astro:calculateDopplerShift(434/(1*10^9), 435/(1*10^9)) -- 1e+9 nm to m conversion
 print("z = " .. shift, shift * 100 .. "%") -- redshift
-shift = Energy:calculateDopplerShift(482, 434) -- seems not affected if you measure in same scale e.g nm to nm whoever lambda measured in meters
-print("z = " .. shift, shift * 100 .. "%") -- blueshift
+print("d = " .. Astro:calculateDistance(shift), "Light Years")

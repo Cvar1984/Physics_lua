@@ -2,6 +2,8 @@ local Math = {
     SPEED_OF_LIGHT = 299792458, -- m/s^2
     GRAVITY = 9.80665, -- m/s^2
     PI = 3.14159265358979, -- 15 digit seems to be accurate enough
+    HUBBLE = 2.3817e-18, -- m/s/m
+    LIGHT_YEAR = 9.461e15, -- m
 }
 function Math:new(o)
     o = o or {}

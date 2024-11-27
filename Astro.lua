@@ -26,7 +26,7 @@ function Astro:calculateDopplerShift(referenceWavelength, observedWavelegth)
 end
 
 -- cz = H0d
--- d = cz/H0
+-- d ≈ cz/H0
 function Astro:calculateDopplerDistance(redshift)
     local distance = Math.SPEED_OF_LIGHT * redshift / Math.HUBBLE
     return distance / Math.LIGHT_YEAR -- convert meter to light year

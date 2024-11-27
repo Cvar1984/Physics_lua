@@ -111,8 +111,8 @@ function Energy:calculateAcceleration(force, mass)
 end
 
 -- v = ir
-function Energy:calculateVoltage(current, resitance)
-    local voltage = current * resitance
+function Energy:calculateVoltage(current, resistance)
+    local voltage = current * resistance
     return voltage
 end
 

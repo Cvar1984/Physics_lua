@@ -1,5 +1,6 @@
-local Math = require "Math"
-local Telescope = {}
+local Telescope = {
+    EYE_DIAMETER = 0.007, -- 7mm
+}
 
 function Telescope:new(o)
     o = o or {}
@@ -24,43 +25,36 @@ function Telescope:calculateAperture(focalLength, focalRatio)
     return focalLength / focalRatio
 end
 
--- LGP = π * (Aperture in meter/2)^2 * Luminance Sensitivity of the Human Eye in cd/m^2
-function Telescope:calculateLightGatheringPower(aperture) -- according to llama-3
-    -- Luminance sensitivity of the human eye in candela per square meter approximately 3.18309 * 10^-6 cd/m^2 according to Lamma-3 AI
-    -- and approximately peak at 5.5 x 10^-10 cd/m^2 according to Gemini AI
-    local luminanceSensitivity = 3.18309 * 1e-6
-    local apertureInMeters = aperture / 1000 -- Convert mm to meters
-
-    local lightGatheringPower = Math.PI * (apertureInMeters / 2) ^ 2 * luminanceSensitivity
-
-    return lightGatheringPower
+-- universally accepted LGP according to GPT 4
+function Telescope:calculateRelativeLightGatheringPower(telescopeDiameter, referenceDiameter)
+    return (telescopeDiameter / referenceDiameter) ^ 2
 end
 
 --return Telescope
 print("Main mirror diameter in mm: ")
-local mainMirrorDiameter = tonumber(io.read())
+local mainMirrorDiameter = tonumber(io.read()) / 1000
 
 print("Main mirror focal length in mm: ")
-local mainMirrorFocalLength = tonumber(io.read())
+local mainMirrorFocalLength = tonumber(io.read()) / 1000
 
 local mainMirrorFocalRatio = Telescope:calculateFocalRatio(mainMirrorFocalLength, mainMirrorDiameter)
 
 print("Eyepiece 1 focal length in mm: ")
-local eyepieceFocalLength1 = tonumber(io.read())
+local eyepieceFocalLength1 = tonumber(io.read()) / 1000
 
 print("Eyepiece 2 focal length in mm: ")
-local eyepieceFocalLength2 = tonumber(io.read())
+local eyepieceFocalLength2 = tonumber(io.read()) / 1000
 
 local focalRatio = Telescope:calculateFocalRatio(mainMirrorFocalLength, mainMirrorDiameter)
 local magnification1 = Telescope:calculateMagnification(mainMirrorFocalLength, eyepieceFocalLength1)
 local magnification2 = Telescope:calculateMagnification(mainMirrorFocalLength, eyepieceFocalLength2)
 local aperture = Telescope:calculateAperture(mainMirrorFocalLength, mainMirrorFocalRatio)
-local apertureInches = aperture / 25.4
-local lightGatheringPower = Telescope:calculateLightGatheringPower(aperture)
+local apertureInches = aperture / 0.0254 -- m to inch
+local relativeLightGatheringPower = Telescope:calculateRelativeLightGatheringPower(mainMirrorDiameter, Telescope.EYE_DIAMETER)
 
-print("Focal length: " .. mainMirrorFocalLength .. " mm")
+print("Focal length: " .. mainMirrorFocalLength * 1000 .. " mm")
 print("Focal ratio: f/" .. focalRatio)
-print("Magnification 1: " .. magnification1 .. "X")
-print("Magnification 2: " .. magnification2 .. "X")
-print("Aperture: " .. aperture .. " mm (\"" .. apertureInches .. ")")
-print("Light Gathering power: " .. lightGatheringPower .. " lm/s")
+print("Magnification 1: " .. magnification1 .. "x")
+print("Magnification 2: " .. magnification2 .. "x")
+print("Aperture: " .. aperture * 1000 .. " mm (" .. apertureInches .. "\")")
+print("Relative Light Gathering power ≈ " .. relativeLightGatheringPower .. "x compared to the human eye")

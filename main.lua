@@ -19,4 +19,8 @@ print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")
 print("v = " .. Astro:calculateDopplerRadialVelocity(434, 435) .. " m/s")
 local shift = Astro:calculateDopplerShift(434, 435)
 print("z = " .. shift, shift * 100 .. "%") -- redshift
-print("d ≈ " .. Math:formatNumber(Astro:calculateDopplerDistance(shift)), "Light Years")
+local distance, uncertain = Astro:calculateDopplerDistance(shift)
+local distanceLightYears = distance * Math.LIGHT_YEAR -- parsec -> ly
+local uncertainLightYears = uncertain * Math.LIGHT_YEAR -- parsec -> ly
+print("d ≈ " .. Math:formatNumber(distance), "± " .. Math:formatNumber(uncertain) .. " Pc")
+print("d ≈ " .. Math:formatNumber(distanceLightYears), "± " .. Math:formatNumber(uncertainLightYears) .. " Ly")

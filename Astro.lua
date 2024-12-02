@@ -25,11 +25,19 @@ function Astro:calculateDopplerShift(referenceWavelength, observedWavelegth)
     return shift
 end
 
+-- Vr = cz
 -- cz = H0d
--- d ≈ cz/H0
+-- d = cz/H0
 function Astro:calculateDopplerDistance(redshift)
-    local distance = Math.SPEED_OF_LIGHT * redshift / Math.HUBBLE
-    return distance / Math.LIGHT_YEAR -- convert meter to light year
+    local hubble = Math.HUBBLE.VALUE * 1000 -- km/s/mpc -> m/s/mpc
+    local hubbleUncertain = Math.HUBBLE.UNCERTAIN * 1000 -- km/s/mpc -> m/s/mpc
+    local relativeUncertain = hubbleUncertain / hubble
+    local recessionVelocity = Math.SPEED_OF_LIGHT * redshift
+    local distance = recessionVelocity / hubble
+    local uncertain = distance * relativeUncertain
+    distance = distance * 1e6 -- mpc -> pc
+    uncertain = uncertain * 1e6 -- mpc -> pc
+    return distance, uncertain
 end
 
 return Astro

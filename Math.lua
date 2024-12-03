@@ -1,10 +1,9 @@
 local Math = {
-    SPEED_OF_LIGHT = 299792458, -- m/s^2
-    GRAVITY = 9.80665,          -- m/s^2
+    SPEED_OF_LIGHT = 299792458, -- m/s
+    GRAVITY = 9.80665,          -- m/s²
     PI = 3.14159265358979,      -- 15 digit seems to be accurate enough
-    --HUBBLE = 2.3817e-18,        -- m/s/m
-    HUBBLE = { -- Plack + ACTPol + SPTpol 2021
-        VALUE = 68.7, -- km/s/mpc
+    HUBBLE = { -- Plack + ACTPol + SPTpol 2021 https://lambda.gsfc.nasa.gov/education/graphic_history/hubb_const.html
+        VALUE = 68.7, -- Km/s/Mpc
         UNCERTAIN = 1.3,
     },
     LIGHT_YEAR = 3.2615637769, -- ly/pc

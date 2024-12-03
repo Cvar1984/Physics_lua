@@ -15,7 +15,8 @@ end
 --[[ SI unit
 energy = joules
 mass = kg
-acceleration = meter/second^2
+acceleration = m/s²
+velocity = m/s
 force = newton
 ]] --
 --p = mv
@@ -24,27 +25,27 @@ function Energy:calculateMomentum(mass, velocity)
     return momentum
 end
 
--- e2 = (mc^2)^2+(pc)^2
+-- e2 = (mc²)²+(pc)²
 function Energy:calculateRelativeEnergy(mass, momentum)
     local energy = math.sqrt((mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2 + (momentum * Math.SPEED_OF_LIGHT) ^ 2)
     return energy
 end
 
--- e2 - (pc)^2 = (mc^2)^2
--- m2 = (e^2 - (pc)^2) /c^4
+-- e2 - (pc)² = (mc²)²
+-- m2 = (e² - (pc)²)/c⁴
 function Energy:calculateRelativeMass(energy, momentum)
     local mass = math.sqrt((energy ^ 2 - (momentum * Math.SPEED_OF_LIGHT) ^ 2) / Math.SPEED_OF_LIGHT ^ 4)
     return mass
 end
 
--- e2 - (mc^2)^2 = (pc)^2
--- p2 = (e^2 - (mc^2)^2) / c^2
+-- e2 - (mc²)² = (pc)²
+-- p2 = (e² - (mc²)²) / c²
 function Energy:calculateRelativeMomentum(energy, mass)
     local momentum = math.sqrt((energy ^ 2 - (mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2) / Math.SPEED_OF_LIGHT ^ 2)
     return momentum
 end
 
--- KE = 1/2mv^2
+-- KE = 1/2mv²
 function Energy:calculateKineticEnergy(mass, velocity)
     local kineticEnergy = (1 / 2) * mass * (velocity ^ 2)
     return kineticEnergy
@@ -104,11 +105,18 @@ function Energy:calculateMass(force, acceleration)
     return mass
 end
 
--- a = f/m
-function Energy:calculateAcceleration(force, mass)
-    local acceleration = force / mass
+-- a = Δv/Δt
+function Energy:calculateAcceleration(pastVelocity, presentVelocity, timeInterval)
+    local deltaVelocity = presentVelocity - pastVelocity
+    local acceleration = deltaVelocity / timeInterval
     return acceleration
 end
+
+-- v = Δx/Δt
+function Energy:calculateVelocity(distance, time)
+    local velocity = distance / time
+    return velocity
+  end
 
 -- v = ir
 function Energy:calculateVoltage(current, resistance)

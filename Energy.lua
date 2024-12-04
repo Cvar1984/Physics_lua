@@ -105,19 +105,6 @@ function Energy:calculateMass(force, acceleration)
     return mass
 end
 
--- a = Δv/Δt
-function Energy:calculateAcceleration(pastVelocity, presentVelocity, timeInterval)
-    local deltaVelocity = presentVelocity - pastVelocity
-    local acceleration = deltaVelocity / timeInterval
-    return acceleration
-end
-
--- v = Δx/Δt
-function Energy:calculateVelocity(distance, time)
-    local velocity = distance / time
-    return velocity
-  end
-
 -- v = ir
 function Energy:calculateVoltage(current, resistance)
     local voltage = current * resistance

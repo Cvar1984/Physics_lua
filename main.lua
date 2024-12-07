@@ -32,3 +32,7 @@ print("d ≈ " .. Math:separate(distanceLightYears) .. " ± " .. Math:separate(u
 print("h = " .. Motion:calculateHeightFalloff(1) .. " m")
 print("h = " .. Motion:calculateKinematicDistance(1,0) .. " m")
 print("a = " .. Motion:calculateKinematicAcceleration(4.903325, 1) .. " m/s²")
+-- H1
+local q = Energy:calculatePhotonEnergy(1420405751.768)
+print("Eq = " .. q .. " J")
+print("Nq = " .. Energy:calculatePhotonCollected(1, q)) -- 1 joule collected

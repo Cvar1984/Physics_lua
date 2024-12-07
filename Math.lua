@@ -7,6 +7,7 @@ local Math = {
         UNCERTAIN = 1.3,
     },
     LIGHT_YEAR = 3.2615637769, -- ly/pc
+    PLANCK = 6.62607015e-34, -- J.Hz⁻¹ reduced = h/(2pi) J.s
 }
 
 function Math:new(o)

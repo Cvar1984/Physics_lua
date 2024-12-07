@@ -129,4 +129,16 @@ function Energy:calculatePower(voltage, current)
     return wattage
 end
 
+-- E = hf
+function Energy:calculatePhotonEnergy(frequency)
+    local energy = Math.PLANCK * frequency
+    return energy
+end
+
+-- Np = P/hf
+function Energy:calculatePhotonCollected(totalEnergyCollected, photonEnergy)
+    local numberOfPhoton = totalEnergyCollected / photonEnergy
+    return numberOfPhoton
+end
+
 return Energy

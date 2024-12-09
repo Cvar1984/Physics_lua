@@ -8,6 +8,24 @@ function Astro:new(o)
     return o
 end
 
+-- v = λf
+function Astro:calculateWaveVelocity(length, frequency)
+    local velocity = length * frequency
+    return velocity
+end
+
+-- λ = v/f
+function Astro:calculateWaveLength(velocity, frequency)
+    local length = velocity / frequency
+    return length
+end
+
+-- f = v/λ
+function Astro:calculateWaveFrequency(velocity, length)
+    local frequency = velocity / length
+    return frequency
+end
+
 -- z = v/c
 -- v/c = Δλ / λ∘
 -- Δλ = λ - λ∘

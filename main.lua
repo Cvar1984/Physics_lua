@@ -36,3 +36,4 @@ print("a = " .. Motion:calculateKinematicAcceleration(4.903325, 1) .. " m/s²")
 local q = Energy:calculatePhotonEnergy(1420405751.768)
 print("Eq = " .. q .. " J")
 print("Nq = " .. Energy:calculatePhotonCollected(1, q)) -- 1 joule collected
+print("λ = " .. Astro:calculateWaveLength(Math.SPEED_OF_LIGHT, 144.490 * 1e6) * 100 .. " cm") -- mhz->hz->m->cm

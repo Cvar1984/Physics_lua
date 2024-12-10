@@ -2,6 +2,7 @@ local Math = require "Math"
 local Energy = require "Energy"
 local Motion = require "Motion"
 local Astro = require "Astro"
+local Fourier = require "Fourier"
 
 -- 1 gram of weights
 local mass = Energy:calculateMass(1/1000, Math.GRAVITY)
@@ -37,3 +38,13 @@ local q = Energy:calculatePhotonEnergy(1420405751.768)
 print("Eq = " .. q .. " J")
 print("Nq = " .. Energy:calculatePhotonCollected(1, q)) -- 1 joule collected
 print("λ = " .. Astro:calculateWaveLength(Math.SPEED_OF_LIGHT, 144.490 * 1e6) * 100 .. " cm") -- mhz->hz->m->cm
+-- fourier
+local i = 12 -- Number of terms
+local f = 1  -- Frequency
+
+local file = io.open("wave.dat", "w")
+
+for t = 0, 10, 0.001 do
+    file:write(string.format("%f %f\n", t, Fourier:transformSawtooth(i, f, t)))
+end
+os.execute("gnuplot -p -e \"plot 'wave.dat' using 1:2 with lines title 'Sawtooth Wave'\"")

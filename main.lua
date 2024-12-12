@@ -4,18 +4,17 @@ local Motion = require "Motion"
 local Astro = require "Astro"
 local Fourier = require "Fourier"
 
--- 1 gram of weights
-local mass = Energy:calculateMass(1/1000, Math.GRAVITY)
-local momentum = Energy:calculateMomentum(mass, Math.GRAVITY)
-local acceleration = 9.8 -- m/s²
-local velocity = 0.5 -- m/s
+local mass = Energy:calculateMass(0.001, Math.GRAVITY)
+local acceleration = Math.GRAVITY -- m/s²
+local velocity = Motion:calculateVelocity(5, 10)
 
-print("E = " .. Math:separate(Energy:calculateRelativeEnergy(mass, momentum)) .. " J")
+print("v = " .. velocity .. " m/s")
+print("a = " .. Motion:calculateAcceleration(velocity, 0, 10) .. " m/s²") -- stopping
+print("m = " .. mass .. " kg")
+print("E = " .. Math:separate(Energy:calculateRelativeEnergy(mass, velocity)) .. " J")
+print("p = " .. Energy:calculateMomentum(mass, velocity) .. " kg.m/s")
 print("F = " .. Energy:calculateForce(mass, acceleration) .. " kg⋅m/s²")
 print("KE = " .. Energy:calculateKineticEnergy(mass, velocity) .. " kg⋅m²⋅s⁻²")
-print("v = " .. Motion:calculateVelocity(5, 10) .. " m/s")
-print("a = " .. Motion:calculateAcceleration(0.5, 0, 10) .. " m/s²") -- stopping
-print("p = " .. Energy:calculateMomentum(mass, velocity) .. " kg⋅m/s")
 print("PE = " .. Energy:calculatePotentialEnergy(mass, 10) .. " kg⋅m²⋅s⁻²")
 print("q = " .. Energy:calculateHeatEnergy(mass, 4.2, 10) .. " kg⋅m²⋅s⁻²")
 print("C = " .. Energy:calculateHeatCapacity(126, mass, 10) .. " kg⋅m²⋅s⁻²/(kg°C)")

@@ -19,29 +19,56 @@ acceleration = m/s²
 velocity = m/s
 force = newton
 ]] --
---p = mv
-function Energy:calculateMomentum(mass, velocity)
-    local momentum = mass * velocity
-    return momentum
+
+-- γ = 1/sqrt(1-v²/c²)
+function Energy:lorentzFactor(velocity)
+    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
+        return 1 -- Approximation when v << c
+    else
+        local lorentz = 1 / math.sqrt(1 - (velocity / Math.SPEED_OF_LIGHT) ^ 2)
+        return lorentz
+    end
 end
 
--- e2 = (mc²)²+(pc)²
-function Energy:calculateRelativeEnergy(mass, momentum)
-    local energy = math.sqrt((mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2 + (momentum * Math.SPEED_OF_LIGHT) ^ 2)
-    return energy
+--p = γm0v
+-- approximated as p ≈ m0v if v << c
+function Energy:calculateMomentum(restMass, velocity)
+    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
+        return restMass * velocity -- Approximation for low velocities
+    else
+        local lorentzFactor = Energy:lorentzFactor(velocity)
+        local momentum = lorentzFactor * restMass * velocity
+        return momentum
+    end
 end
 
--- e2 - (pc)² = (mc²)²
--- m2 = (e² - (pc)²)/c⁴
+-- e² = (m0c²)²+(pc)²
+-- Approximated as E ≈ m0c² + KE if v << c
+function Energy:calculateRelativeEnergy(restMass, velocity)
+    local restEnergy = restMass * Math.SPEED_OF_LIGHT ^ 2
+    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
+        -- Add the classical kinetic energy for low velocities
+        local kineticEnergy = Energy:calculateKineticEnergy(restMass, velocity)
+        return restEnergy + kineticEnergy
+    else
+        -- Full relativistic energy calculation
+        local momentum = Energy:calculateMomentum(restMass, velocity)
+        local relativisticEnergy = math.sqrt((restEnergy ^ 2) + (momentum * Math.SPEED_OF_LIGHT) ^ 2)
+        return relativisticEnergy
+    end
+end
+
+-- e² - (pc)² = (m0c²)²
+-- m² = (e² - (pc)²)/c⁴
 function Energy:calculateRelativeMass(energy, momentum)
-    local mass = math.sqrt((energy ^ 2 - (momentum * Math.SPEED_OF_LIGHT) ^ 2) / Math.SPEED_OF_LIGHT ^ 4)
-    return mass
+    local restMass = Math:sqrt((energy ^ 2 - (momentum * Math.SPEED_OF_LIGHT) ^ 2) / Math.SPEED_OF_LIGHT ^ 4)
+    return restMass
 end
 
--- e2 - (mc²)² = (pc)²
--- p2 = (e² - (mc²)²) / c²
-function Energy:calculateRelativeMomentum(energy, mass)
-    local momentum = math.sqrt((energy ^ 2 - (mass * Math.SPEED_OF_LIGHT ^ 2) ^ 2) / Math.SPEED_OF_LIGHT ^ 2)
+-- e² - (m0c²)² = (pc)²
+-- p² = (e² - (m0c²)²) / c²
+function Energy:calculateRelativeMomentum(energy, restMass)
+    local momentum = Math:sqrt((energy ^ 2 - (restMass * Math.SPEED_OF_LIGHT ^ 2) ^ 2) / Math.SPEED_OF_LIGHT ^ 2)
     return momentum
 end
 

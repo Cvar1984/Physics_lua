@@ -18,7 +18,7 @@ function Math:new(o)
 end
 
 -- binary tree square root
-function Math:sqrt(x)
+function Math:sqrtTree(x)
     local low, mid, high = 0, 0, x
     local eps = 1e-14 -- Adjust epsilon for desired precision, 1*(10^-14) seems the best
 
@@ -35,14 +35,26 @@ function Math:sqrt(x)
 end
 
 -- newton square root
-function Math:Sqrt(x)
-    local epsilon = 1e-14
-    local guess = x / 2
-
-    while math.abs(guess * guess - x) > epsilon do
-        guess = (guess + x / guess) / 2
+function Math:sqrt(square, tolerance, maxIteration)
+    if (square < 0) then
+        return 0/0 -- nan
+    elseif (square == 0) then
+        return 0
     end
 
+    tolerance = tolerance or 1e-14
+    maxIteration = maxIteration or 30
+    local iteration = 0
+    local guess = square / 2 -- Initial guess
+
+    while iteration < maxIteration do
+        local guessFuture = 0.5 * (guess + (square / guess))
+        if math.abs(guessFuture - guess) < tolerance then
+            return guessFuture
+        end
+        guess = guessFuture
+        iteration = iteration + 1
+    end
     return guess
 end
 

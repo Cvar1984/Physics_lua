@@ -10,7 +10,7 @@ local velocity = Motion:calculateVelocity(5, 10)
 print("v = " .. velocity .. " m/s")
 print("a = " .. Motion:calculateAcceleration(velocity, 0, 10) .. " m/s²") -- stopping
 print("m = " .. mass .. " kg")
-print("E = " .. Math:separate(Energy:calculateRelativeEnergy(mass, velocity)) .. " J")
+print("Er = " .. Math:separate(Energy:calculateRelativeEnergy(mass, velocity)) .. " J")
 print("Pr = " .. Energy:calculateRelativeMomentum(mass, velocity) .. " kg.m/s")
 print("KEr = " .. Energy:calculateRelativeKineticEnergy(mass, velocity) .. "kg⋅m²⋅s⁻²")
 
@@ -29,8 +29,8 @@ print("V = " .. Energy:calculateVoltage(50, 0.1) .. " V")
 local shift = Astro:calculateDopplerShift(1e9, 1000000001) -- 1nm shift
 print("z = " .. shift, shift * 100 .. "%") -- redshift
 local distance, uncertain = Astro:calculateDopplerDistance(shift)
-local distanceLightYears = distance * Math.LIGHT_YEAR -- parsec -> ly
-local uncertainLightYears = uncertain * Math.LIGHT_YEAR -- parsec -> ly
+local distanceLightYears = distance * 3.2615637769 -- parsec -> ly
+local uncertainLightYears = uncertain * 3.2615637769 -- parsec -> ly
 print("d ≈ " .. Math:separate(distance) .. " ± " .. Math:separate(uncertain) .. " Pc")
 print("d ≈ " .. Math:separate(distanceLightYears) .. " ± " .. Math:separate(uncertainLightYears) .. " Ly")
 

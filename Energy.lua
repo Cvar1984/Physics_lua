@@ -1,9 +1,6 @@
 local Math = require "Math"
 local Motion = require "Motion"
 
---[[
-TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
-]] --
 local Energy = {}
 
 function Energy:new(o)
@@ -13,17 +10,9 @@ function Energy:new(o)
     return o
 end
 
---[[ SI unit
-energy = joules
-mass = kg
-acceleration = m/s²
-velocity = m/s
-force = newton
-]] --
-
+-- p = mv
 function Energy:calculateMomentum(restMass, velocity)
-    local lorentzFactor = Motion:lorentzFactor(velocity)
-    local momentum = lorentzFactor * restMass * velocity
+    local momentum = restMass * velocity
     return momentum
 end
 
@@ -47,7 +36,7 @@ function Energy:calculateRelativeEnergy(restMass, velocity)
     local restEnergy = Energy:calculateRestEnergy(restMass)
     local momentum = Energy:calculateRelativeMomentum(restMass, velocity)
     local kineticEnergy = momentum * Math.SPEED_OF_LIGHT
-    local totalEnergy = math.sqrt((restEnergy ^ 2) + (kineticEnergy ^ 2))
+    local totalEnergy = Math:sqrt((restEnergy ^ 2) + (kineticEnergy ^ 2))
     return totalEnergy
 end
 

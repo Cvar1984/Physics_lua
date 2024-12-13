@@ -1,6 +1,10 @@
 local Math = require "Math"
-local Astro = {}
-
+local Astro = {
+    hubble = {       -- Plack + ACTPol + SPTpol 2021 https://lambda.gsfc.nasa.gov/education/graphic_history/hubb_const.html
+        value = 68.7 * 1000, -- m/s/Mpc
+        uncertainty = 1.3 * 1000
+    },
+}
 function Astro:new(o)
     o = o or {}
     setmetatable(o, self)
@@ -47,11 +51,9 @@ end
 -- cz = H0d
 -- d = cz/H0
 function Astro:calculateDopplerDistance(redshift)
-    local hubble = Math.HUBBLE.VALUE * 1000 -- km/s/mpc -> m/s/mpc
-    local hubbleUncertain = Math.HUBBLE.UNCERTAIN * 1000 -- km/s/mpc -> m/s/mpc
-    local relativeUncertain = hubbleUncertain / hubble
+    local relativeUncertain = self.hubble.uncertainty / self.hubble.value
     local recessionVelocity = Math.SPEED_OF_LIGHT * redshift
-    local distance = recessionVelocity / hubble
+    local distance = recessionVelocity / self.hubble.value
     local uncertain = distance * relativeUncertain
     distance = distance * 1e6 -- mpc -> pc
     uncertain = uncertain * 1e6 -- mpc -> pc

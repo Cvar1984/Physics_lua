@@ -1,11 +1,27 @@
 local Math = require "Math"
-local Motion = {}
+local Motion = {
+    lorentzThreshold = 1e-4, -- error 0.005%
+}
 
 function Motion:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
     return o
+end
+
+-- γ = 1/sqrt(1-v²/c²)
+function Motion:lorentzFactor(velocity)
+    -- A lower threshold: Increases accuracy but might lead to unnecessary calculations for very low velocities.
+    -- A higher threshold: Reduces computational cost but might introduce more error for higher velocities.
+    local beta = velocity / Math.SPEED_OF_LIGHT
+    if (beta ^ 2) < Motion.lorentzThreshold then
+        -- Use binomial approximation for low velocities (v << c)
+        return 1 + 0.5 * beta ^ 2
+    else
+        -- Exact Lorentz factor for relativistic velocities
+        return 1 / math.sqrt(1 - beta ^ 2)
+    end
 end
 
 -- a = Δv/Δt

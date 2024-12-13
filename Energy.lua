@@ -1,4 +1,5 @@
 local Math = require "Math"
+local Motion = require "Motion"
 
 --[[
 TODO: kinetic, potential, sound, mechanical, elastic, radiant, chemical, electric, nuclear, heat
@@ -20,56 +21,55 @@ velocity = m/s
 force = newton
 ]] --
 
--- γ = 1/sqrt(1-v²/c²)
-function Energy:lorentzFactor(velocity)
-    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
-        return 1 -- Approximation when v << c
-    else
-        local lorentz = 1 / math.sqrt(1 - (velocity / Math.SPEED_OF_LIGHT) ^ 2)
-        return lorentz
-    end
+function Energy:calculateMomentum(restMass, velocity)
+    local lorentzFactor = Motion:lorentzFactor(velocity)
+    local momentum = lorentzFactor * restMass * velocity
+    return momentum
 end
 
 --p = γm0v
 -- approximated as p ≈ m0v if v << c
-function Energy:calculateMomentum(restMass, velocity)
-    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
-        return restMass * velocity -- Approximation for low velocities
-    else
-        local lorentzFactor = Energy:lorentzFactor(velocity)
-        local momentum = lorentzFactor * restMass * velocity
-        return momentum
-    end
+function Energy:calculateRelativeMomentum(restMass, velocity)
+    local lorentzFactor = Motion:lorentzFactor(velocity)
+    local momentum = lorentzFactor * restMass * velocity
+    return momentum
+end
+
+-- E = m0c²
+function Energy:calculateRestEnergy(restMass)
+    local restEnergy = restMass * Math.SPEED_OF_LIGHT ^ 2
+    return restEnergy
 end
 
 -- e² = (m0c²)²+(pc)²
 -- Approximated as E ≈ m0c² + KE if v << c
 function Energy:calculateRelativeEnergy(restMass, velocity)
-    local restEnergy = restMass * Math.SPEED_OF_LIGHT ^ 2
-    if velocity / Math.SPEED_OF_LIGHT < 0.01 then
-        -- Add the classical kinetic energy for low velocities
-        local kineticEnergy = Energy:calculateKineticEnergy(restMass, velocity)
-        return restEnergy + kineticEnergy
-    else
-        -- Full relativistic energy calculation
-        local momentum = Energy:calculateMomentum(restMass, velocity)
-        local relativisticEnergy = math.sqrt((restEnergy ^ 2) + (momentum * Math.SPEED_OF_LIGHT) ^ 2)
-        return relativisticEnergy
-    end
+    local restEnergy = Energy:calculateRestEnergy(restMass)
+    local momentum = Energy:calculateRelativeMomentum(restMass, velocity)
+    local kineticEnergy = momentum * Math.SPEED_OF_LIGHT
+    local totalEnergy = math.sqrt((restEnergy ^ 2) + (kineticEnergy ^ 2))
+    return totalEnergy
 end
 
 -- e² - (pc)² = (m0c²)²
 -- m² = (e² - (pc)²)/c⁴
-function Energy:calculateRelativeMass(energy, momentum)
+function Energy:calculateRelativeMassFromEnergy(energy, momentum)
     local restMass = Math:sqrt((energy ^ 2 - (momentum * Math.SPEED_OF_LIGHT) ^ 2) / Math.SPEED_OF_LIGHT ^ 4)
     return restMass
 end
 
 -- e² - (m0c²)² = (pc)²
 -- p² = (e² - (m0c²)²) / c²
-function Energy:calculateRelativeMomentum(energy, restMass)
+function Energy:calculateRelativeMomentumFromEnergy(energy, restMass)
     local momentum = Math:sqrt((energy ^ 2 - (restMass * Math.SPEED_OF_LIGHT ^ 2) ^ 2) / Math.SPEED_OF_LIGHT ^ 2)
     return momentum
+end
+
+-- KE = m0c²(γ-1)
+function Energy:calculateRelativeKineticEnergy(restMass, velocity)
+    local lorentz = Motion:lorentzFactor(velocity)
+    local kineticEnergy = restMass * Math.SPEED_OF_LIGHT ^ 2 * (lorentz - 1)
+    return kineticEnergy
 end
 
 -- KE = 1/2mv²

@@ -1,16 +1,22 @@
 local Math = {
     SPEED_OF_LIGHT = 299792458, -- m/s
     GRAVITY = 9.80665,          -- m/s²
-    PI = 3.14159265358979,      -- 15 digit seems to be accurate enough
-    PLANCK = 6.62607015e-34, -- J.Hz⁻¹ reduced = h/(2pi) J.s
+    --PI = 3.14159265358979,      -- 15 digit seems to be accurate enough
+    PLANCK = 6.62607015e-34,    -- J.Hz⁻¹ reduced = h/(2pi) J.s
+    sqrtTolerance = 1e-14,
+    sqrtMaxIteration = 30,
+    pmb = 0,
+    qmb = 0,
+    p1a = 0,
+    q1a = 0,
+    r1a = 0,
+    p1b = 0,
+    q1b = 0,
+    r1b = 0,
+    m = 0,
+    rab = 0,
 }
-
-function Math:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+setmetatable(Math, { __index = Math }) -- static class
 
 -- binary tree square root
 function Math:sqrtTree(x)
@@ -30,21 +36,20 @@ function Math:sqrtTree(x)
 end
 
 -- newton square root
-function Math:sqrt(square, tolerance, maxIteration)
+function Math:sqrt(square)
     if (square < 0) then
         return 0/0 -- nan
     elseif (square == 0) then
         return 0
     end
 
-    tolerance = tolerance or 1e-14
-    maxIteration = maxIteration or 30
-    local iteration = 0
-    local guess = square / 2 -- Initial guess
+    local iteration, guessFuture = 0,0
+    --local guess = square / 2 -- Initial guess
+    local guess = square -- Start with a more robust initial guess
 
-    while iteration < maxIteration do
-        local guessFuture = 0.5 * (guess + (square / guess))
-        if math.abs(guessFuture - guess) < tolerance then
+    while iteration < self.sqrtMaxIteration do
+        guessFuture = 0.5 * (guess + (square / guess))
+        if math.abs(guessFuture - guess) < self.sqrtTolerance then
             return guessFuture
         end
         guess = guessFuture
@@ -70,6 +75,32 @@ end
 -- round and format
 function Math:humanize(x)
     return Math:separate(Math:round(x))
+end
+
+function Math:binarySplit(a, b)
+    if b == a + 1 then
+        -- Base case
+        self.p1a = -(6 * a - 5) * (2 * a - 1) * (6 * a - 1)
+        self.q1a = 10939058860032000 * a ^ 3
+        self.r1a = self.p1a * (545140134 * a + 13591409)
+        return self.p1a, self.q1a, self.r1a
+    else
+        -- Divide and conquer
+        self.m = math.floor((a + b) / 2)
+        self.p1a, self.q1a, self.r1a = self:binarySplit(a, self.m)
+        self.p1b, self.q1b, self.r1b = self:binarySplit(self.m, b)
+
+        -- Combine results
+        self.pmb = self.p1a * self.p1b
+        self.qmb = self.q1a * self.q1b
+        self.rab = self.q1b * self.r1a + self.p1a * self.r1b
+        return self.pmb, self.qmb, self.rab
+    end
+end
+
+function Math:pi(n)
+    local p1n, q1n, r1n = self:binarySplit(1, n)
+    return (426880 * self:sqrt(10005) * q1n) / (13591409 * q1n + r1n)
 end
 
 return Math

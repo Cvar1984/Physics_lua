@@ -42,3 +42,10 @@ local q = Energy:calculatePhotonEnergy(1420405751.768)
 print("Eq = " .. q .. " J")
 print("Nq = " .. Energy:calculatePhotonCollected(1, q)) -- 1 joule collected
 print("λ = " .. Astro:calculateWaveLength(Math.SPEED_OF_LIGHT, 144.490 * 1e6) * 100 .. " cm") -- mhz->hz->m->cm
+
+local precision = 17
+print(string.format("%.".. precision .."f",Math:pi(precision)))
+-- reducing computation cost
+Math.sqrtTolerance = 1e-1
+Math.sqrtMaxIteration = 2
+print(Math:sqrt(3))

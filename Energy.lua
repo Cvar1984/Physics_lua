@@ -32,6 +32,7 @@ end
 
 -- e² = (m0c²)²+(pc)²
 -- Approximated as E ≈ m0c² + KE if v << c
+-- e² = (m0​c²)²+(γm0​vc)
 function Energy:calculateRelativeEnergy(restMass, velocity)
     local restEnergy = Energy:calculateRestEnergy(restMass)
     local momentum = Energy:calculateRelativeMomentum(restMass, velocity)

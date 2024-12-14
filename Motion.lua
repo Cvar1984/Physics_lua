@@ -20,7 +20,7 @@ function Motion:lorentzFactor(velocity)
         return 1 + 0.5 * beta ^ 2
     else
         -- Exact Lorentz factor for relativistic velocities
-        return 1 / math.sqrt(1 - beta ^ 2)
+        return 1 / Math:sqrt(1 - beta ^ 2)
     end
 end
 

@@ -29,15 +29,15 @@ end
 local f1 = Benchmark:functions(
     function()
         Math:pi(17)
-    end, 10)
+    end, 1e3)
 
 local f2 = Benchmark:functions(
     function()
-        Math:pi(2)
-    end, 10)
+        Math:pi(17)
+    end, 1e3)
 
 local fasterTime = math.min(f1, f2)
 local slowerTime = math.max(f1, f2)
 
 local avgT = Benchmark:calculatePercentage(fasterTime, slowerTime)
-print(avgT .. "%")
+print(avgT .. "%") -- small percentage = small diffrences = more stable

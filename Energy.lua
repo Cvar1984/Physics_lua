@@ -3,12 +3,7 @@ local Motion = require "Motion"
 
 local Energy = {}
 
-function Energy:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+setmetatable(Energy, {__index = Energy})
 
 -- p = mv
 function Energy:calculateMomentum(restMass, velocity)
@@ -32,7 +27,7 @@ end
 
 -- e² = (m0c²)²+(pc)²
 -- Approximated as E ≈ m0c² + KE if v << c
--- e² = (m0​c²)²+(γm0​vc)
+-- e² = (m0​c²)²+(γm0​vc)²
 function Energy:calculateRelativeEnergy(restMass, velocity)
     local restEnergy = Energy:calculateRestEnergy(restMass)
     local momentum = Energy:calculateRelativeMomentum(restMass, velocity)

@@ -1,12 +1,7 @@
 local Math = require "Math"
 local Fourier = {}
 
-function Fourier:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+setmetatable(Fourier, {__index = Fourier})
 
 -- f_{1}\left(x\right)=\sum_{n=1}^{i}\frac{\left(-1^{n}\right)\sin\left(2\pi nfx\right)}{n}
 function Fourier:transformSawtooth(i, f, t)

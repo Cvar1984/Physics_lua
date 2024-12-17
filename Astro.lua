@@ -5,12 +5,8 @@ local Astro = {
         uncertainty = 1.3 * 1000
     },
 }
-function Astro:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+
+setmetatable(Astro, {__index = Astro})
 
 -- v = λf
 function Astro:calculateWaveVelocity(length, frequency)

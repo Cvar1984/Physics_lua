@@ -3,12 +3,7 @@ local Motion = {
     lorentzThreshold = 1e-4, -- error 0.005%
 }
 
-function Motion:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+setmetatable(Motion, {__index = Motion})
 
 -- γ = 1/sqrt(1-v²/c²)
 function Motion:lorentzFactor(velocity)

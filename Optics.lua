@@ -2,12 +2,7 @@ local Optics = {
     EYE_DIAMETER = 0.007, -- 7mm
 }
 
-function Optics:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
+setmetatable(Optics, {__index = Optics})
 
 function Optics:calculateFocalLength(diameter, fRatio)
     return diameter * fRatio

@@ -1,22 +1,11 @@
 local Math = {
     SPEED_OF_LIGHT = 299792458, -- m/s
     GRAVITY = 9.80665,          -- m/s²
-    --PI = 3.14159265358979,      -- 15 digit seems to be accurate enough
     PLANCK = 6.62607015e-34,    -- J.Hz⁻¹ reduced = h/(2pi) J.s
     sqrtTolerance = 1e-14,
     sqrtMaxIteration = 30,
     lambertTolerance = 1e-2,
     lambertIteration = 3,
-    pmb = 0,
-    qmb = 0,
-    p1a = 0,
-    q1a = 0,
-    r1a = 0,
-    p1b = 0,
-    q1b = 0,
-    r1b = 0,
-    m = 0,
-    rab = 0,
 }
 
 setmetatable(Math, { __index = Math }) -- static class
@@ -81,23 +70,24 @@ function Math:humanize(x)
 end
 
 function Math:binarySplit(a, b)
+    local pmb,qmb,p1a,q1a,r1a,p1b,q1b,r1b,m,rab
     if b == a + 1 then
         -- Base case
-        self.p1a = -(6 * a - 5) * (2 * a - 1) * (6 * a - 1)
-        self.q1a = 10939058860032000 * a ^ 3
-        self.r1a = self.p1a * (545140134 * a + 13591409)
-        return self.p1a, self.q1a, self.r1a
+        p1a = -(6 * a - 5) * (2 * a - 1) * (6 * a - 1)
+        q1a = 10939058860032000 * a ^ 3
+        r1a = p1a * (545140134 * a + 13591409)
+        return p1a, q1a, r1a
     else
         -- Divide and conquer
-        self.m = math.floor((a + b) / 2)
-        self.p1a, self.q1a, self.r1a = self:binarySplit(a, self.m)
-        self.p1b, self.q1b, self.r1b = self:binarySplit(self.m, b)
+        m = math.floor((a + b) / 2)
+        p1a, q1a, r1a = self:binarySplit(a, m)
+        p1b, q1b, r1b = self:binarySplit(m, b)
 
         -- Combine results
-        self.pmb = self.p1a * self.p1b
-        self.qmb = self.q1a * self.q1b
-        self.rab = self.q1b * self.r1a + self.p1a * self.r1b
-        return self.pmb, self.qmb, self.rab
+        pmb = p1a * p1b
+        qmb = q1a * q1b
+        rab = q1b * r1a + p1a * r1b
+        return pmb, qmb, rab
     end
 end
 

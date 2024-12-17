@@ -5,6 +5,8 @@ local Math = {
     PLANCK = 6.62607015e-34,    -- J.Hz⁻¹ reduced = h/(2pi) J.s
     sqrtTolerance = 1e-14,
     sqrtMaxIteration = 30,
+    lambertTolerance = 1e-2,
+    lambertIteration = 3,
     pmb = 0,
     qmb = 0,
     p1a = 0,
@@ -16,6 +18,7 @@ local Math = {
     m = 0,
     rab = 0,
 }
+
 setmetatable(Math, { __index = Math }) -- static class
 
 -- binary tree square root
@@ -101,6 +104,38 @@ end
 function Math:pi(n)
     local p1n, q1n, r1n = self:binarySplit(1, n)
     return (426880 * self:sqrt(10005) * q1n) / (13591409 * q1n + r1n)
+end
+
+-- Lambert W function implemented using Newton-Raphson iteration
+function Math:lambertW(x)
+    -- Ensure valid input
+    if x < -1 / math.exp(1) then
+        return 0/0 -- -NaN
+    end
+
+    local w
+    if x == 0 then
+        return 0
+    elseif x > 1 then
+        -- For large x, initial guess can be log(x)
+        w = math.log(x)
+    else
+        -- For small x, initial guess is x
+        w = x
+    end
+
+    -- Newton-Raphson iteration
+    for i = 1, self.lambertIteration do
+        local ew = math.exp(w)
+        local wew = w * ew
+        local deltaW = (wew - x) / (ew * (w + 1) - ((w + 2) * (wew - x) / (2 * w + 2)))  -- Halley's method
+        w = w - deltaW
+
+        -- Check convergence
+        if math.abs(deltaW) < self.lambertTolerance then
+            return w
+        end
+    end
 end
 
 return Math

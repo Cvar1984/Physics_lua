@@ -49,3 +49,4 @@ print(string.format("%.".. precision .."f",Math:pi(precision)))
 Math.sqrtTolerance = 1e-1
 Math.sqrtMaxIteration = 2
 print(Math:sqrt(3))
+print(5 - Math:lambertW(32 * math.log(2)) / math.log(2)) -- 2^x+x=5

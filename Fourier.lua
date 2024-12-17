@@ -8,8 +8,8 @@ function Fourier:transformSawtooth(i, f, t)
     local term = 0
 
     for n = 1, i do
-        term = term + (-1 ^ n * math.sin(2 * Math:pi(19) * n * f * t) / n)
+        term = term + (-1 ^ n * math.sin(2 * Math:pi(17) * n * f * t) / n)
     end
-    return 2 / Math:pi(19) * term
+    return 2 / Math:pi(17) * term
 end
 return Fourier

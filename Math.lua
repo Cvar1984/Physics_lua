@@ -92,6 +92,7 @@ function Math:binarySplit(a, b)
 end
 
 function Math:pi(n)
+    n = n or 17
     local p1n, q1n, r1n = self:binarySplit(1, n)
     return (426880 * self:sqrt(10005) * q1n) / (13591409 * q1n + r1n)
 end

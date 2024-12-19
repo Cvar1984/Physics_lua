@@ -8,7 +8,7 @@ local Math = {
     lambertIteration = 3,
 }
 
-setmetatable(Math, { __index = Math }) -- static class
+--setmetatable(Math, { __index = Math }) -- static class
 
 -- binary tree square root
 function Math:sqrtTree(x)
@@ -30,12 +30,12 @@ end
 -- newton square root
 function Math:sqrt(square)
     if (square < 0) then
-        return 0/0 -- nan
+        return 0 / 0 -- nan
     elseif (square == 0) then
         return 0
     end
 
-    local iteration, guessFuture = 0,0
+    local iteration, guessFuture = 0, 0
     --local guess = square / 2 -- Initial guess
     local guess = square -- Start with a more robust initial guess
 
@@ -70,7 +70,7 @@ function Math:humanize(x)
 end
 
 function Math:binarySplit(a, b)
-    local pmb,qmb,p1a,q1a,r1a,p1b,q1b,r1b,m,rab
+    local pmb, qmb, p1a, q1a, r1a, p1b, q1b, r1b, m, rab
     if b == a + 1 then
         -- Base case
         p1a = -(6 * a - 5) * (2 * a - 1) * (6 * a - 1)
@@ -101,7 +101,7 @@ end
 function Math:lambertW(x)
     -- Ensure valid input
     if x < -1 / math.exp(1) then
-        return 0/0 -- -NaN
+        return 0 / 0 -- -NaN
     end
 
     local w
@@ -109,7 +109,7 @@ function Math:lambertW(x)
         return 0
     elseif x > 1 then
         -- For large x, initial guess can be log(x)
-        w = math.log(x)
+        w = self:log(x)
     else
         -- For small x, initial guess is x
         w = x
@@ -119,7 +119,7 @@ function Math:lambertW(x)
     for i = 1, self.lambertIteration do
         local ew = math.exp(w)
         local wew = w * ew
-        local deltaW = (wew - x) / (ew * (w + 1) - ((w + 2) * (wew - x) / (2 * w + 2)))  -- Halley's method
+        local deltaW = (wew - x) / (ew * (w + 1) - ((w + 2) * (wew - x) / (2 * w + 2))) -- Halley's method
         w = w - deltaW
 
         -- Check convergence
@@ -127,6 +127,29 @@ function Math:lambertW(x)
             return w
         end
     end
+end
+---base^x=n
+---@param base number
+---@param n any
+---@return number x
+function Math:log(base, n)
+    if n == nil then
+        return math.log(base) -- ln(x)
+    end
+    return math.log(n, base)
+end
+
+---@param n integer
+---@return integer
+function Math:factorial(n)
+    if n < 0 then
+        return 0 / 0
+    end
+    local result = 1
+    for i = 1, n do
+        result = result * i
+    end
+    return result
 end
 
 return Math

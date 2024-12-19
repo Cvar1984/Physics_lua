@@ -45,8 +45,8 @@ print("λ = " .. Astro:calculateWaveLength(Math.SPEED_OF_LIGHT, 144.490 * 1e6) *
 
 local precision = 17
 print(string.format("%.".. precision .."f",Math:pi(precision)))
--- reducing computation cost
-Math.sqrtTolerance = 1e-1
-Math.sqrtMaxIteration = 2
-print(Math:sqrt(3))
 print(5 - Math:lambertW(32 * math.log(2)) / math.log(2)) -- 2^x+x=5
+print(Math:sqrt(3))
+print(Math:log(10,1000))
+print(Math:log(3))
+print(Math:factorial(9))

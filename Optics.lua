@@ -1,28 +1,47 @@
 local Optics = {
-    EYE_DIAMETER = 0.007, -- 7mm
+    eyeDiameter = 0.007, -- 7mm
 }
 
 setmetatable(Optics, {__index = Optics})
 
-function Optics:calculateFocalLength(diameter, fRatio)
-    return diameter * fRatio
+--- Lf = d.Rf
+---@param diameter number
+---@param ratioFocal number
+---@return number focalLength m
+function Optics:focalLength(diameter, ratioFocal)
+    return diameter * ratioFocal
 end
 
-function Optics:calculateFocalRatio(focalLength, diameter)
-    return focalLength / diameter
+--- Rf = Lf/D
+---@param lengthFocal number
+---@param diameter number
+---@return number ratioFocal m
+function Optics:focalRatio(lengthFocal, diameter)
+    return lengthFocal / diameter
 end
 
-function Optics:calculateMagnification(focalLength, eyepieceFocalLength)
-    return focalLength / eyepieceFocalLength
+--- Z = Lf/Rf
+---@param lengthFocal number
+---@param eyepieceFocalLength number
+---@return number magnification
+function Optics:magnification(lengthFocal, eyepieceFocalLength)
+    return lengthFocal / eyepieceFocalLength
 end
 
-function Optics:calculateAperture(focalLength, focalRatio)
+--- N = f/D
+---@param focalLength number
+---@param focalRatio number
+---@return number aperture m
+function Optics:aperture(focalLength, focalRatio)
     return focalLength / focalRatio
 end
 
--- universally accepted LGP according to GPT 4
-function Optics:calculateRelativeLightGatheringPower(baseDiameter, referenceDiameter)
-     referenceDiameter = referenceDiameter or self.EYE_DIAMETER
+--- LGP (Db/Dr)²
+---@param baseDiameter number
+---@param referenceDiameter number
+---@return number lgp
+function Optics:lightGatheringPower(baseDiameter, referenceDiameter)
+     referenceDiameter = referenceDiameter or self.eyeDiameter
     return (baseDiameter / referenceDiameter) ^ 2
 end
 

@@ -5,11 +5,11 @@ local signal = {}
 local time = {}
 local harmonic = 30
 
-
+-- testing sawtooth wave
 local frequency = 1
 for i = 1, 1000 do
     time[i] = (i - 1) * 0.001  -- time array (0.001 second intervals)
-    signal[i] = Fourier:transformSawtooth(i, frequency, time[i])
+    signal[i] = Fourier:saw(i, frequency, time[i])
 end
 
 -- Decompose the signal into Fourier coefficients

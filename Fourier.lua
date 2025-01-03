@@ -63,8 +63,12 @@ function Fourier:decompose(signal, maxHarmonic, f, t)
     return coeffs
 end
 
--- f_{1}\left(x\right)=\sum_{n=1}^{i}\frac{\left(-1^{n}\right)\sin\left(2\pi nfx\right)}{n}
-function Fourier:transformSawtooth(i, f, t)
+---Generate sawtooth wave
+---@param i number index
+---@param f number frequency
+---@param t number time
+---@return number result sawtooth wave
+function Fourier:saw(i, f, t)
     local term = 0
 
     for n = 1, i do

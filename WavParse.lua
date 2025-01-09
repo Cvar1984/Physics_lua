@@ -1,6 +1,7 @@
 local WavParse = {}
 WavParse.__index = WavParse
 
+--- @class WavParse
 --- Create a new WavParse object
 ---@param filename string Path to the WAV file
 ---@return table WavParse object
@@ -11,6 +12,7 @@ function WavParse:new(filename)
     assert(self.file, "Failed to open file: " .. filename)
     self:parseHeader()
 
+    -- Automatic resource cleanup on garbage collection
     local mt = getmetatable(self)
     mt.__gc = function(obj)
         obj:close()
@@ -55,22 +57,32 @@ function WavParse:parseHeader()
     assert(dataFound, "Data chunk not found in the WAV file")
 end
 
+--- Get basic metadata from the WAV header
+function WavParse:getMetadata()
+    return {
+        channels = self.channels,
+        sampleRate = self.sampleRate,
+        bitDepth = self.bitDepth,
+        fileSize = self.fileSize
+    }
+end
+
 --- Get the number of channels
 ---@return number Channels
 function WavParse:getChannel()
     return self.channels
 end
 
---- Get the bit depth
----@return number Bit depth
-function WavParse:getBitDepth()
-    return self.bitDepth
-end
-
 --- Get the sample rate
 ---@return number Sample rate
 function WavParse:getSampleRate()
     return self.sampleRate
+end
+
+--- Get the bit depth
+---@return number Bit depth
+function WavParse:getBitDepth()
+    return self.bitDepth
 end
 
 --- Get the file size in bytes
@@ -102,11 +114,10 @@ function WavParse:readSample()
             error("Unsupported bit depth: " .. self.bitDepth)
         end
     end
-
     return samples
 end
 
----Get total audio duration in seconds
+--- Get the total audio duration in seconds
 ---@return number Duration second
 function WavParse:getDuration()
     if not self.sampleRate or not self.channels or not self.bitDepth or not self.dataChunkSize then
@@ -118,9 +129,13 @@ function WavParse:getDuration()
     return duration
 end
 
+--- Get the time and sample pairs for visualization
+---@param samples table The array of samples
+---@param duration number The total duration of the audio in seconds
+---@return table x, table y Time and sample values respectively
 function WavParse:getTimesSamples(samples, duration)
     local timeStep = duration / #samples
-    local x,y = {}, {}
+    local x, y = {}, {}
 
     for i, sample in ipairs(samples) do
         local time = (i - 1) * timeStep
@@ -130,7 +145,7 @@ function WavParse:getTimesSamples(samples, duration)
     return x, y
 end
 
----Automatically close the file when the object is garbage collected
+--- Automatically close the file when the object is garbage collected
 function WavParse:close()
     if self.file then
         self.file:close()

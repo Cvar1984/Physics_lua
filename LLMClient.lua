@@ -1,13 +1,18 @@
 -- Load required modules
 local http = require("socket.http")
 local ltn12 = require("ltn12")
+local socket = require("socket")
 local json = require("dkjson")
 
 -- Define a class for handling HTTP requests and JSON parsing
-local LLMClient = {}
+local LLMClient = {
+    temp = 0.8,
+    stream = false,
+    timeout = 30, -- Default timeout in seconds
+}
 LLMClient.__index = LLMClient
 
----comment
+--- Create new model
 ---@param model string LLM model
 ---@return self instance
 function LLMClient:new(model)
@@ -16,7 +21,7 @@ function LLMClient:new(model)
     return instance
 end
 
---- comment
+--- Parse json stream response body
 --- @param responseBody string raw json data
 --- @return string concatenated text response
 function LLMClient:parseResponse(responseBody)
@@ -38,11 +43,32 @@ end
 ---@return string responseBody raw json data
 function LLMClient:makeRequest(prompt)
     -- Prepare the POST data
-    local data = string.format('{"model": "%s", "prompt": "%s"}', self.model, prompt)
+    -- https://github.com/ollama/ollama/blob/main/docs/api.md
+    local data = {
+        ["model"] = self.model,
+        ["prompt"] = prompt,
+        ["stream"] = self.stream,
+        ["options"] = {
+            ["temperature"] = self.temp,
+        },
+    }
+    data = json.encode(data)
+
+    -- Custom socket factory to set timeout
+    local function createCustomSocket()
+        local sock = socket.tcp()
+        sock:settimeout(self.timeout) -- Set timeout from the LLMClient instance
+        return sock
+    end
+
+    -- Use custom socket factory for this request
+    http.open = function()
+        return createCustomSocket()
+    end
 
     -- Make the POST request
     local response = {}
-    local result, statusCode, headers = http.request{
+    local result, statusCode, headers = http.request {
         url = "http://cvar1984.my.id:11434/api/generate",
         method = "POST",
         headers = {
@@ -50,16 +76,12 @@ function LLMClient:makeRequest(prompt)
             ["Content-Length"] = tostring(#data)
         },
         source = ltn12.source.string(data),
-        sink = ltn12.sink.table(response)
+        sink = ltn12.sink.table(response),
     }
 
-    -- Check the status code
     assert(statusCode == 200, "Error response " .. statusCode)
 
-    -- Join the response table into a single string
     local responseBody = table.concat(response)
-
-    -- Concatenate all responses
     return responseBody
 end
 

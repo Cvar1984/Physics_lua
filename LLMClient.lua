@@ -1,7 +1,6 @@
 -- Load required modules
 local http = require("socket.http")
 local ltn12 = require("ltn12")
-local socket = require("socket")
 local json = require("dkjson")
 
 -- Define a class for handling HTTP requests and JSON parsing
@@ -17,12 +16,12 @@ LLMClient.__index = LLMClient
 ---@return self instance
 function LLMClient:new(model)
     local instance = setmetatable({}, self)
-    self.model = model
+    instance.model = model
     return instance
 end
 
---- Parse json stream response body
---- @param responseBody string raw json data
+--- Parse JSON stream response body
+--- @param responseBody string raw JSON data
 --- @return string concatenated text response
 function LLMClient:parseResponse(responseBody)
     local concatenated = ""
@@ -38,9 +37,9 @@ function LLMClient:parseResponse(responseBody)
     return concatenated
 end
 
---- Make http request to llm API
----@param prompt string your llm prompt
----@return string responseBody raw json data
+--- Make HTTP request to LLM API
+---@param prompt string your LLM prompt
+---@return string responseBody raw JSON data
 function LLMClient:makeRequest(prompt)
     -- Prepare the POST data
     -- https://github.com/ollama/ollama/blob/main/docs/api.md
@@ -54,26 +53,19 @@ function LLMClient:makeRequest(prompt)
     }
     data = json.encode(data)
 
-    -- Custom socket factory to set timeout
-    local function createCustomSocket()
-        local sock = socket.tcp()
-        sock:settimeout(self.timeout) -- Set timeout from the LLMClient instance
-        return sock
-    end
+    -- Prepare the response table
+    local response = {}
 
-    -- Use custom socket factory for this request
-    http.open = function()
-        return createCustomSocket()
-    end
+    -- Configure HTTP request with a custom timeout
+    http.TIMEOUT = self.timeout -- Set the timeout globally for this request
 
     -- Make the POST request
-    local response = {}
     local result, statusCode, headers = http.request {
         url = "http://cvar1984.my.id:11434/api/generate",
         method = "POST",
         headers = {
             ["Content-Type"] = "application/json",
-            ["Content-Length"] = tostring(#data)
+            ["Content-Length"] = tostring(#data),
         },
         source = ltn12.source.string(data),
         sink = ltn12.sink.table(response),

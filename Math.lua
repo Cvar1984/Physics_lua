@@ -128,6 +128,7 @@ function Math:lambertW(x)
         end
     end
 end
+
 ---base^x=n
 ---@param base number
 ---@param n any
@@ -148,6 +149,22 @@ function Math:factorial(n)
     local result = 1
     for i = 1, n do
         result = result * i
+    end
+    return result
+end
+
+---Taylor sine, simple but not accurate
+---@param x number
+---@return number result
+function Math:sin(x)
+    local sinMaxIteration = 32
+    local term, term1, term2
+    local result = 0
+    for n = 0, sinMaxIteration do
+        term1 = 2 * n + 1
+        term2 = self:factorial(2 * n + 1)
+        term = ((-1) ^ n * x ^ term1) / term2
+        result = result + term
     end
     return result
 end

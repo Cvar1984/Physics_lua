@@ -169,4 +169,38 @@ function Math:sin(x)
     return result
 end
 
+--- Draw slope line
+---@param heightStart number Starting of height(y)
+---@param heightEnd number End of height(y)
+---@param lengthStart number Start of length(x)
+---@param lengthEnd number End of length(x)
+---@return function
+function Math:slopeDrawLine(heightStart, heightEnd, lengthStart, lengthEnd)
+    local deltaHeight = heightEnd - heightStart
+    local deltaLength = lengthEnd - lengthStart
+    local slope = deltaHeight / deltaLength
+    local intercept = heightStart - slope * lengthStart
+    return function(x)
+        return slope * x + intercept
+    end
+end
+
+--- Integrate slope
+---@param f function Result from slopeDrawLine
+---@param xStart number Starting of length(x)
+---@param xEnd number End of length(x)
+---@param numOfSlices number Precission
+---@return number area Area under the curve
+function Math:slopeIntegrate(f, xStart, xEnd, numOfSlices)
+    local totalArea = 0
+    local dx = (xEnd - xStart) / numOfSlices -- decrement and dive by slices
+    for i = 0, numOfSlices - 1 do
+        local leftEdge = xStart + i * dx
+        local rightEdge = leftEdge + dx
+        local areaTrapezoid = (f(leftEdge) + f(rightEdge)) * dx / 2
+        totalArea = totalArea + areaTrapezoid
+    end
+    return totalArea
+end
+
 return Math

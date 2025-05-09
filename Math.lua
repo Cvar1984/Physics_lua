@@ -169,13 +169,22 @@ function Math:sin(x)
     return result
 end
 
+---Create integration instance
+---@param points table Point x and y
+---@return table
+function Math:integratorNew(points)
+    self.originalPoints = points or {}
+    self.processedPoints = {}
+    return self
+end
+
 --- Draw slope line
 ---@param heightStart number Starting of height(y)
 ---@param heightEnd number End of height(y)
 ---@param lengthStart number Start of length(x)
 ---@param lengthEnd number End of length(x)
 ---@return function
-function Math:slopeDrawLine(heightStart, heightEnd, lengthStart, lengthEnd)
+function Math:integratorDrawLine(heightStart, heightEnd, lengthStart, lengthEnd)
     local deltaHeight = heightEnd - heightStart
     local deltaLength = lengthEnd - lengthStart
     local slope = deltaHeight / deltaLength
@@ -189,16 +198,59 @@ end
 ---@param f function Result from slopeDrawLine
 ---@param xStart number Starting of length(x)
 ---@param xEnd number End of length(x)
----@param numOfSlices number Precission
+---@param slices number Precission
 ---@return number area Area under the curve
-function Math:slopeIntegrate(f, xStart, xEnd, numOfSlices)
+function Math:integratorAbsIntegrate(f, xStart, xEnd, slices)
     local totalArea = 0
-    local dx = (xEnd - xStart) / numOfSlices -- decrement and dive by slices
-    for i = 0, numOfSlices - 1 do
-        local leftEdge = xStart + i * dx
-        local rightEdge = leftEdge + dx
-        local areaTrapezoid = (f(leftEdge) + f(rightEdge)) * dx / 2
-        totalArea = totalArea + areaTrapezoid
+    local dx = (xEnd - xStart) / slices
+    for i = 0, slices - 1 do
+        local x1 = xStart + i * dx
+        local x2 = x1 + dx
+        local y1 = math.abs(f(x1))
+        local y2 = math.abs(f(x2))
+        totalArea = totalArea + (y1 + y2) * dx / 2
+    end
+    return totalArea
+end
+
+--- Find the x position where the line between two points crosses the x-axis
+---@param p1 table {x1, y1}
+---@param p2 table {x2, y2}
+---@return table {x, 0} the x-coordinate where y = 0
+function Math:integratorFindZeroX(p1, p2)
+    local x1, y1 = table.unpack(p1)
+    local x2, y2 = table.unpack(p2)
+    local slope = (y2 - y1) / (x2 - x1)
+    local xZero = x1 - y1 / slope
+    return {xZero, 0}
+end
+
+--- Preprocess points, insert zero-crossings
+function Math:integratorInterpolateCrossings()
+    for i = 1, #self.originalPoints - 1 do
+        local p1 = self.originalPoints[i]
+        local p2 = self.originalPoints[i + 1]
+        table.insert(self.processedPoints, p1)
+
+        if p1[2] * p2[2] < 0 then
+            local zero = self:integratorFindZeroX(p1, p2)
+            table.insert(self.processedPoints, zero)
+        end
+    end
+    table.insert(self.processedPoints, self.originalPoints[#self.originalPoints])
+end
+
+--- Compute total absolute area under segments
+--- @param slices number Precission
+--- @return number totalArea
+function Math:integratorComputeArea(slices)
+    self:integratorInterpolateCrossings()
+    local totalArea = 0
+    for i = 1, #self.processedPoints - 1 do
+        local x1, y1 = table.unpack(self.processedPoints[i])
+        local x2, y2 = table.unpack(self.processedPoints[i + 1])
+        local f = self:integratorDrawLine(y1, y2, x1, x2)
+        totalArea = totalArea + self:integratorAbsIntegrate(f, x1, x2, slices or 10)
     end
     return totalArea
 end

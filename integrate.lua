@@ -11,14 +11,8 @@ local points = { -- x,y
     {4.0, -1.513605},
 }
 
-local totalArea = 0
+local precision = 10
+local integrator = Math:integratorNew(points)
+local totalArea = Math:integratorComputeArea(precision)
 
-for i = 1, #points - 1 do
-    local x1, y1 = table.unpack(points[i])
-    local x2, y2 = table.unpack(points[i + 1])
-    local segmentFunc = Math:slopeDrawLine(y1, y2, x1, x2)
-    local area = Math:slopeIntegrate(segmentFunc, x1, x2, 1000)
-    print(string.format("Segment %d: from %.2f to %.2f = Area %.6f", i, x1, x2, area))
-    totalArea = totalArea + area
-end
-print("Total Approximate Area:", totalArea)
+print("Total area under |y| from x = 0 to x = 4 is:", totalArea)

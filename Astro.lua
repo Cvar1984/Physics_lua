@@ -1,8 +1,8 @@
 local Math = require "Math"
 local Astro = {
     hubble = {       -- Plack + ACTPol + SPTpol 2021 https://lambda.gsfc.nasa.gov/education/graphic_history/hubb_const.html
-        value = 68.7 * 1000, -- m/s/Mpc
-        uncertainty = 1.3 * 1000
+        value = 67.8 * 1000, -- m/s/Mpc
+        uncertainty = 0.35 * 1000
     },
 }
 

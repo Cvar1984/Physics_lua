@@ -1,26 +1,10 @@
--- Deep Sky Imaging Optimizer for SV305M Pro (or similar)
--- Author: ChatGPT
-
--- More frame more clear SNR
--- More exposure more signal captured
--- Bias	Remove read noise from the camera
--- + Cover your camera (cap on, total darkness)
--- + Set shortest exposure time possible (e.g. 0.1ms or 0.0001s)
--- + Use same gain/ISO as your light frames
--- Dark	Remove thermal noise & hot pixels
--- + Cover telescope or lens (completely dark)
--- + Use same exposure, same gain, and ideally same temperature as your light frames
--- Flat	Remove dust, vignetting, artifacts
--- + Use a flat, evenly illuminated white source
--- + Set exposure so histogram peaks around 50% (no clipping!)
--- + Use same focus and optical setup
-
+-- Deep Sky Imaging Optimizer with adjustable integration time or fixed time
 
 -- User Input
-local target_name = "Orion Nebula"
-local bortle_class = 6           -- 1 = darkest skies, 9 = bright city
-local guiding = false            -- true = using autoguider, false = unguided
-local total_minutes = 30        -- Desired total integration time in minutes
+local bortle_class = 5            -- 1 = darkest skies, 9 = bright city
+local guiding = false             -- true = using autoguider, false = unguided
+local total_minutes = nil         -- Desired total integration time in minutes, or nil for auto-calc
+local target_snr = 50             -- Desired SNR (10 = basic, 20 = good, 30+ = excellent)
 
 -- Function: Suggest exposure time based on sky brightness and guiding
 local function get_exposure_time(bortle, guiding)
@@ -37,11 +21,11 @@ local function get_exposure_time(bortle, guiding)
     end
 end
 
--- Function: Suggest gain for SV305M Pro
+-- Function: Suggest gain (range 1–30)
 local function get_gain(bortle)
-    if bortle <= 3 then return 250
-    elseif bortle <= 5 then return 300
-    else return 350
+    if bortle <= 3 then return 10
+    elseif bortle <= 5 then return 20
+    else return 30
     end
 end
 
@@ -53,23 +37,49 @@ local function calculate_frame_counts(light_frames)
     return darks, flats, bias
 end
 
+-- Function: Estimate SNR given frames and exposure
+local function estimate_snr(frames, exposure)
+    return math.sqrt(frames * exposure)
+end
+
+-- Function: Calculate required total time for target SNR
+local function time_for_snr(target_snr)
+    return target_snr ^ 2 -- seconds needed
+end
+
+-- Function: Adjust for SNR depending on fixed vs variable total time
+local function adjust_for_snr(exposure, total_time, target_snr)
+    if total_time then
+        -- Fixed total integration time
+        local frames = math.floor(total_time / exposure)
+        local snr = estimate_snr(frames, exposure)
+        return frames, snr, total_time
+    else
+        -- Calculate required time for target SNR
+        local required_seconds = time_for_snr(target_snr)
+        local frames = math.ceil(required_seconds / exposure)
+        local snr = estimate_snr(frames, exposure)
+        return frames, snr, frames * exposure
+    end
+end
+
 -- Main calculation
 local exposure_time = get_exposure_time(bortle_class, guiding)
 local gain = get_gain(bortle_class)
-local total_seconds = total_minutes * 60
-local light_frames = math.floor(total_seconds / exposure_time)
-local integration = light_frames * exposure_time
+local total_seconds = total_minutes and (total_minutes * 60) or nil
 
+local light_frames, achieved_snr, integration = adjust_for_snr(exposure_time, total_seconds, target_snr)
 local darks, flats, bias = calculate_frame_counts(light_frames)
 
 -- Output
-print("🎯 Deep Sky Imaging Plan for: " .. target_name)
-print("Sky Quality (Bortle): " .. bortle_class)
-print("Guiding: " .. tostring(guiding))
-print("➡ Suggested Exposure Time: " .. exposure_time .. " seconds")
-print("➡ Suggested Gain: " .. gain)
-print("➡ Light Frames: " .. light_frames)
-print("➡ Total Integration: " .. (integration / 60) .. " minutes")
+print("➡ Sky Quality (Bortle): " .. bortle_class)
+print("➡ Guiding: " .. tostring(guiding))
+print("➡ Target SNR: " .. target_snr)
+print("➡ Estimated SNR: " .. string.format("%.1f", achieved_snr))
+print("➡ Exposure time / frames: " .. exposure_time .. " seconds")
+print("➡ Gain: " .. gain)
+print("➡ Lights: " .. light_frames)
 print("➡ Darks: " .. darks)
 print("➡ Flats: " .. flats)
 print("➡ Bias: " .. bias)
+print("➡ Total Integration: " .. string.format("%.1f", integration / 60) .. " minutes")

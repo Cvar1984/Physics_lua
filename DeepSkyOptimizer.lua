@@ -15,29 +15,53 @@
 -- + Use a flat, evenly illuminated white source
 -- + Set exposure so histogram peaks around 50% (no clipping!)
 -- + Use same focus and optical setup
+-- Deep Sky Imaging Optimizer for Mono Camera (LRGB/Narrowband)
+-- OOP Refactor, single-file
 
--- ===================== USER INPUT =====================
-local bortle_class   = 5            -- 1 = darkest skies, 9 = bright city
-local guiding        = true        -- true = using autoguider, false = unguided
-local total_minutes  = nil          -- total session time in minutes; nil for auto-SNR
-local target_snr     = 100           -- desired SNR % (0–100)
+------------------------------------------------------------
+-- Class Definition
+------------------------------------------------------------
+local DeepSkyOptimizer = {}
+DeepSkyOptimizer.__index = DeepSkyOptimizer
 
--- channel weights (fraction of total integration)
-local channels = {
-    {name = "Luminance", weight = 0.5},
-    {name = "Red",       weight = 0.166, altername = "S-II"},
-    {name = "Green",     weight = 0.166, altername = "H-alpha"},
-    {name = "Blue",      weight = 0.166, altername = "O-III"},
-}
+function DeepSkyOptimizer:new(config)
+    local self = setmetatable({}, DeepSkyOptimizer)
 
--- reuse flags
-local reuse_darks = false
-local reuse_flats = false
-local reuse_bias  = false
--- =======================================================
+    -- User configuration
+    self.brotleClass   = config.brotleClass   or 5
+    self.guiding        = config.guiding        or false
+    self.totalMinutes  = config.totalMinutes  or nil
+    self.targetSnr     = config.targetSnr     or 100
 
--- Suggest exposure time based on sky brightness and guiding
-local function get_exposure_time(bortle, guiding)
+    self.biasRatio     = config.biasRatio     or 0.2 -- 20% of light frames
+    self.darkRatio     = config.darkRatio     or 0.2 -- 20% of light frames
+    self.flatRatio     = config.flatRatio     or 0.15 -- 15% of light frames
+
+    self.channels       = {
+        {name = "Luminance", weight = 0.5},
+        {name = "Red",       weight = 0.166, altername = "S-II"},
+        {name = "Green",     weight = 0.166, altername = "H-alpha"},
+        {name = "Blue",      weight = 0.166, altername = "O-III"},
+    }
+
+    self.useDarks      = config.useDarks ~= false
+    self.useFlats      = config.useFlats ~= false
+    self.useBias       = config.useBias  ~= false
+
+    -- Derived values
+    self.exposureTime  = self:getExposureTime(self.brotleClass, self.guiding)
+    self.gain           = self:getGain(self.brotleClass)
+    self.totalSeconds  = self.totalMinutes and (self.totalMinutes * 60) or nil
+    self.maxSnr        = 1000  -- arbitrary scaling
+
+    return self
+end
+
+------------------------------------------------------------
+-- Core Methods
+------------------------------------------------------------
+
+function DeepSkyOptimizer:getExposureTime(bortle, guiding)
     if guiding then
         if bortle <= 3 then return 240
         elseif bortle <= 5 then return 180
@@ -51,108 +75,112 @@ local function get_exposure_time(bortle, guiding)
     end
 end
 
--- Suggest gain (range 1–30)
-local function get_gain(bortle)
+function DeepSkyOptimizer:getGain(bortle)
     if bortle <= 3 then return 10
     elseif bortle <= 5 then return 20
-    else return 30
-    end
+    else return 30 end
 end
 
--- Estimate raw SNR
-local function estimate_snr(frames, exposure)
+function DeepSkyOptimizer:estimateSnr(frames, exposure)
     return math.sqrt(frames * exposure)
 end
 
--- Normalize SNR into 0–100%
-local function normalize_snr(raw_snr, max_snr)
-    return math.min(100, (raw_snr / max_snr) * 100)
+function DeepSkyOptimizer:normalizeSnr(rawSnr)
+    return math.min(100, (rawSnr / self.maxSnr) * 100)
 end
 
--- Time needed to reach target SNR %
-local function time_for_snr(target_percent, exposure, max_snr)
-    local target_raw = (target_percent / 100) * max_snr
-    return target_raw ^ 2 / exposure
+function DeepSkyOptimizer:timeForSnr(targetPercent, exposure)
+    local targetRaw = (targetPercent / 100) * self.maxSnr
+    return targetRaw ^ 2 / exposure
 end
 
--- Adjust for fixed or variable total integration
-local function adjust_for_snr(exposure, total_time, target_percent, max_snr)
-    if total_time then
-        local frames = math.floor(total_time / exposure)
-        local raw_snr = estimate_snr(frames, exposure)
-        return frames, normalize_snr(raw_snr, max_snr), total_time
+function DeepSkyOptimizer:adjustForSnr(exposure, totalTime, targetPercent)
+    if totalTime then
+        local frames = math.floor(totalTime / exposure)
+        local rawSnr = self:estimateSnr(frames, exposure)
+        return frames, self:normalizeSnr(rawSnr), totalTime
     else
-        local required_seconds = time_for_snr(target_percent, exposure, max_snr)
-        local frames = math.ceil(required_seconds / exposure)
-        local raw_snr = estimate_snr(frames, exposure)
-        return frames, normalize_snr(raw_snr, max_snr), frames * exposure
+        local requiredSeconds = self:timeForSnr(targetPercent, exposure)
+        local frames = math.ceil(requiredSeconds / exposure)
+        local rawSnr = self:estimateSnr(frames, exposure)
+        return frames, self:normalizeSnr(rawSnr), frames * exposure
     end
 end
 
--- Balanced calibration frame counts based on lights (scaled)
-local function calculate_frame_counts(light_frames)
-    local bias_min, bias_max   = 10, 50
-    local dark_min, dark_max   = 5, 30
-    local flat_min, flat_max   = 5, 20
+function DeepSkyOptimizer:calculateFrameCounts(lightFrames)
+    local biasMin, biasMax   = 10, 50
+    local darkMin, darkMax   = 5, 30
+    local flatMin, flatMax   = 5, 20
 
-    local bias  = math.floor(light_frames * 0.2)
-    local darks = math.floor(light_frames * 0.2)
-    local flats = math.floor(light_frames * 0.15)
+    local bias  = math.floor(lightFrames * self.biasRatio)
+    local darks = math.floor(lightFrames * self.darkRatio)
+    local flats = math.floor(lightFrames * self.flatRatio)
 
-    bias  = math.max(bias_min, math.min(bias, bias_max))
-    darks = math.max(dark_min, math.min(darks, dark_max))
-    flats = math.max(flat_min, math.min(flats, flat_max))
+    bias  = math.max(biasMin, math.min(bias, biasMax))
+    darks = math.max(darkMin, math.min(darks, darkMax))
+    flats = math.max(flatMin, math.min(flats, flatMax))
+
+    if not self.useBias  then bias  = 0 end
+    if not self.useDarks then darks = 0 end
+    if not self.useFlats then flats = 0 end
 
     return darks, flats, bias
 end
 
--- Estimate calibration time in seconds
-local function calculate_calibration_time(darks, flats, bias, exposure)
-    local bias_time = bias * 0.005                      -- 5 ms per bias
-    local flat_time = flats * math.max(0.1, exposure * 0.1) -- flats ~10% of light exposure, min 0.1s
-    local dark_time = darks * exposure                 -- darks same as exposure
-    return bias_time + flat_time + dark_time
+function DeepSkyOptimizer:calculateCalibrationTime(darks, flats, bias, exposure)
+    local biasTime = bias * 0.005                         -- 5 ms per bias
+    local flatTime = flats * math.max(0.1, exposure * 0.1) -- flats ~10% of light exposure
+    local darkTime = darks * exposure                     -- darks same as exposure
+    return biasTime + flatTime + darkTime
 end
 
--- ===================== MAIN =====================
-local exposure_time  = get_exposure_time(bortle_class, guiding)
-local gain           = get_gain(bortle_class)
-local total_seconds  = total_minutes and (total_minutes * 60) or nil
-local max_snr        = 1000  -- arbitrary perfect SNR for scaling
-
-print("➡ Sky Quality (Bortle): " .. bortle_class)
-print("➡ Guiding: " .. tostring(guiding))
-print("➡ Target SNR: " .. target_snr .. "%")
-print("➡ Exposure Time / Frame: " .. exposure_time .. " seconds")
-print("➡ Gain: " .. gain)
-print("--------------------------------------------------")
-
-local grand_total = 0
-
-for _, ch in ipairs(channels) do
-    local channel_time = total_seconds and (total_seconds * ch.weight) or nil
-    local frames, snr_percent, integration = adjust_for_snr(exposure_time, channel_time, target_snr, max_snr)
-
-    -- Calculate calibration frames
-    local darks, flats, bias = calculate_frame_counts(frames)
-
-    -- Apply reuse flags
-    if reuse_bias then bias = 0 end
-    if reuse_darks then darks = 0 end
-    if reuse_flats then flats = 0 end
-
-    -- Total calibration time
-    local calib_time = calculate_calibration_time(darks, flats, bias, exposure_time)
-    local channel_total = integration + calib_time
-    grand_total = grand_total + channel_total
-
-    print("Channel: " .. ch.name .. (ch.altername and (" (" .. ch.altername .. ")") or ""))
-    print("  Achieved SNR: " .. string.format("%.1f%%", snr_percent))
-    print("  Lights: " .. frames .. " | Darks: " .. darks .. " | Flats: " .. flats .. " | Bias: " .. bias)
-    print("  Light Time: " .. string.format("%.1f", integration / 60) .. " minutes")
-    print("  Calibration Time: " .. string.format("%.2f", calib_time / 60) .. " minutes")
-    print("  Channel Total: " .. string.format("%.1f", channel_total / 60) .. " minutes")
+function DeepSkyOptimizer:run()
+    print("➡ Sky Quality (Bortle): " .. self.brotleClass)
+    print("➡ Guiding: " .. tostring(self.guiding))
+    print("➡ Target SNR: " .. self.targetSnr .. "%")
+    print("➡ Exposure Time / Frame: " .. self.exposureTime .. " seconds")
+    print("➡ Gain: " .. self.gain)
     print("--------------------------------------------------")
+
+    local grandTotal = 0
+
+    for _, ch in ipairs(self.channels) do
+        local channelTime = self.totalSeconds and (self.totalSeconds * ch.weight) or nil
+        local frames, snrPercent, integration = self:adjustForSnr(self.exposureTime, channelTime, self.targetSnr)
+
+        local darks, flats, bias = self:calculateFrameCounts(frames)
+        local calibTime = self:calculateCalibrationTime(darks, flats, bias, self.exposureTime)
+
+        local channelTotal = integration + calibTime
+        grandTotal = grandTotal + channelTotal
+
+        print("Channel: " .. ch.name .. (ch.altername and (" (" .. ch.altername .. ")") or ""))
+        print("  Achieved SNR: " .. string.format("%.1f%%", snrPercent))
+        print("  Lights: " .. frames .. " | Darks: " .. darks .. " | Flats: " .. flats .. " | Bias: " .. bias)
+        print("  Light Time: " .. string.format("%.1f", integration / 60) .. " minutes")
+        print("  Calibration Time: " .. string.format("%.2f", calibTime / 60) .. " minutes")
+        print("  Channel Total: " .. string.format("%.1f", channelTotal / 60) .. " minutes")
+        print("--------------------------------------------------")
+    end
+
+    print("➡ Grand Total (Lights + Calibrations Across Channels): " ..
+          string.format("%.1f", grandTotal / 3600) .. " hours")
 end
 
-print("➡ Grand Total (Lights + Calibrations Across Channels): " .. string.format("%.1f", grand_total / 3600) .. " hours")
+------------------------------------------------------------
+-- Example usage
+------------------------------------------------------------
+local config = {
+    brotleClass  = 5, -- 1 = darkest skies, 9 = bright city
+    guiding       = true,
+    totalMinutes = nil, -- total session time in minutes; nil for auto-SNR
+    targetSnr    = 100, -- desired SNR % (0–100)
+    useDarks     = true,
+    useFlats     = true,
+    useBias      = true,
+    darkRatio    = 0.2,  -- 20% of light frames
+    flatRatio    = 0.15, -- 15% of light frames
+    biasRatio    = 0.2,  -- 20% of light frames
+}
+local optimizer = DeepSkyOptimizer:new(config)
+optimizer:run()
